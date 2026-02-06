@@ -1,0 +1,17 @@
+CLIENT (Frontend)
+   ↓ gửi request (ví dụ GET /users)
+JWT FILTER (check token)
+   ↓ hợp lệ?
+      yes → CONTROLLER
+      no  → trả 401
+CONTROLLER
+   ↓ gọi SERVICE
+SERVICE
+   ↓ gọi REPOSITORY
+REPOSITORY
+   ↓ trả data
+SERVICE
+   ↓ xử lý (merge, validate…) → trả data
+CONTROLLER
+   ↓ trả JSON
+CLIENT
