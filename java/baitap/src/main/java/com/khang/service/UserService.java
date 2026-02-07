@@ -1,3 +1,4 @@
+// xử lý logic và gọi repository, validate dữ liệu
 package com.khang.service;
 
 import com.khang.model.User;
@@ -61,7 +62,8 @@ public class UserService {
         User u = repo.findById(id);
         if (u == null) return null;
 
-        // MERGE DATA (quan trọng)
+        // MERGE DATA (nếu client gửi name → update
+        //không gửi → giữ nguyên)
         if (name != null) {
             u.setName(name);
         }

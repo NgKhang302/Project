@@ -19,7 +19,7 @@ public class UserRepository {
 
     // Lưu 1 user (insert)
     public User save(User u) {
-        if (u == null) return null; ///Null-check → tránh lỗi NPE
+        if (u == null) return null; ///Null-check → tránh lỗi NPE = xài cái chưa tồn tại
 
         if (u.getId() <= 0) {
             u.setId(nextId);

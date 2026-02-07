@@ -1,5 +1,5 @@
 package com.khang.dto;
-
+// Data Transfer Object
 public class LoginRequestDTO {
 
     private String username;

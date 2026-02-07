@@ -1,12 +1,12 @@
 package com.khang.controller;
-// file Controller: NHẬN REQUEST → GỌI SERVICE → TRẢ RESPONSE
+// file Controller: NHẬN REQUEST → GỌI SERVICE
 import com.khang.dto.UserCrudDTO;
 import com.khang.model.User;
 import com.khang.service.UserService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+// nhờ service chống lưng
 @RestController
 @RequestMapping("/users")
 public class UserController {

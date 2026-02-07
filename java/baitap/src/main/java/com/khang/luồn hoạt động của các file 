@@ -15,3 +15,40 @@ SERVICE
 CONTROLLER
    ↓ trả JSON
 CLIENT
+
+file user
+✔ hiểu class
+✔ hiểu constructor
+✔ hiểu encapsulation
+✔ hiểu getter/setter
+✔ hiểu object lifecycle
+
+file repo
+ CRUD
+ Repository pattern
+ giả lập database chỉ dùng ram
+ OOP reuse logic
+ separation of concern
+Repository chỉ thao tác DATA
+
+file service
+ kiểm tra dữ liệu
+ tạo object
+ merge data
+ gọi repo
+ giữ controller gọn
+
+file DTO
+u
+định nghĩa format JSON
+bảo vệ entity là dữ liệu lõi của hệ thống
+chuẩn hóa API
+L
+nhận username/password
+bảo vệ entity User
+làm cầu nối JSON → Java
+file controller
+auth
+nhận username
+tạo JWT
+trả token về cho client

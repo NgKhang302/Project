@@ -1,5 +1,5 @@
 package com.khang.security;
-
+// file xử lý token
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
@@ -9,10 +9,9 @@ import java.util.Date;
 
 @Component
 public class JwtService {
-    // simple hardcoded secret for learning - replace with env in real project
+    // Constructor lấy chuỗi biến thành key để key ký jwt
     private final Key key;
     private final long validityMs = 24 * 60 * 60 * 1000L; // 1 day
-
     public JwtService() {
         String secret = "replace_this_with_a_long_strong_secret_at_least_32_chars";
         key = Keys.hmacShaKeyFor(secret.getBytes());

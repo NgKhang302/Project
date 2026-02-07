@@ -26,3 +26,5 @@ public class UserCrudDTO {
         public List<Integer> ids;
     }
 }
+// DTO chỉ để req rep
+// static không cần tạo UserCrudDTO, truy cập trực tiếp class con
