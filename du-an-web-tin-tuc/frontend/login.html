@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Đăng nhập Admin</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div class="login-wrap">
+  <div class="login-box">
+    <h2>🔐 Đăng nhập Admin</h2>
+
+    <div id="alert" style="display:none"></div>
+
+    <form id="login-form">
+      <div class="form-group">
+        <label>Tài khoản</label>
+        <input type="text" id="username" placeholder="admin" required />
+      </div>
+      <div class="form-group">
+        <label>Mật khẩu</label>
+        <input type="password" id="password" placeholder="••••••" required />
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Đăng nhập</button>
+    </form>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+  // Nếu đã login rồi thì vào thẳng admin
+  if (getToken()) window.location.href = 'admin/index.html';
+
+  document.getElementById('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const alert = document.getElementById('alert');
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+
+    try {
+      const res = await login(username, password);
+      localStorage.setItem('token', res.token);
+      window.location.href = 'admin/index.html';
+    } catch (err) {
+      alert.className = 'alert alert-error';
+      alert.textContent = err.message;
+      alert.style.display = 'block';
+    }
+  });
+</script>
+
+</body>
+</html>

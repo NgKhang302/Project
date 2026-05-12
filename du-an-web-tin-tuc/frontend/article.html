@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chi tiết bài viết – SongNhip24</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="index.html">SongNhip24</a>
+  <div class="nav-links">
+    <a href="index.html">← Trang chủ</a>
+  </div>
+</nav>
+
+<div class="container">
+  <div id="content">
+    <p class="loading">Đang tải bài viết...</p>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+  async function loadArticle() {
+    const slug = new URLSearchParams(location.search).get('slug');
+    const el = document.getElementById('content');
+
+    if (!slug) {
+      el.innerHTML = '<p class="empty">Không tìm thấy bài viết.</p>';
+      return;
+    }
+
+    try {
+      const a = await getArticleBySlug(slug);
+      document.title = a.title + ' – SongNhip24';
+      el.innerHTML = `
+        <div class="article-detail">
+          <div class="card-category" style="margin-bottom:8px">${a.categoryName}</div>
+          <h1>${a.title}</h1>
+          <div class="article-meta">
+            <span>📅 ${formatDate(a.publishedAt)}</span>
+            <span>✍️ ${a.createdBy}</span>
+          </div>
+          ${a.coverImageUrl
+            ? `<img class="article-cover" src="http://localhost:8080${a.coverImageUrl}" alt="${a.title}" />`
+            : ''}
+          <div class="article-content">${a.content}</div>
+        </div>
+      `;
+    } catch (e) {
+      el.innerHTML = '<p class="empty">Không tìm thấy bài viết.</p>';
+    }
+  }
+
+  loadArticle();
+</script>
+
+</body>
+</html>

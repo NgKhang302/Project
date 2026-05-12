@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trang chủ – SongNhip24</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="index.html">SongNhip24</a>
+  <div class="nav-links">
+    <a href="index.html">Trang chủ</a>
+    <a href="admin/index.html">Admin</a>
+  </div>
+</nav>
+
+<div class="container">
+  <h1 class="page-title">Tin tức mới nhất</h1>
+  <div id="article-grid" class="article-grid">
+    <p class="loading">Đang tải...</p>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+  async function loadArticles() {
+    const grid = document.getElementById('article-grid');
+    try {
+      const articles = await getPublishedArticles();
+      if (articles.length === 0) {
+        grid.innerHTML = '<p class="empty">Chưa có bài viết nào.</p>';
+        return;
+      }
+      grid.innerHTML = articles.map(a => `
+        <div class="card" onclick="location.href='article.html?slug=${a.slug}'">
+          ${a.coverImageUrl
+            ? `<img src="http://localhost:8080${a.coverImageUrl}" alt="${a.title}" />`
+            : `<div class="card-no-img">📰</div>`}
+          <div class="card-body">
+            <div class="card-category">${a.categoryName}</div>
+            <div class="card-title">${a.title}</div>
+            <div class="card-summary">${a.summary || ''}</div>
+            <div class="card-meta">${formatDate(a.publishedAt)} · ${a.createdBy}</div>
+          </div>
+        </div>
+      `).join('');
+    } catch (e) {
+      grid.innerHTML = '<p class="empty">Không thể tải bài viết.</p>';
+    }
+  }
+
+  loadArticles();
+</script>
+
+</body>
+</html>
+

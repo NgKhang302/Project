@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin – Tạo / Sửa bài</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="../index.html">SongNhip24</a>
+  <div class="nav-links">
+    <a href="index.html">← Danh sách bài</a>
+    <a href="#" id="logout-btn">Đăng xuất</a>
+  </div>
+</nav>
+
+<div class="admin-layout">
+  <aside class="sidebar">
+    <a href="index.html">📄 Bài viết</a>
+    <a href="categories.html">🗂 Category</a>
+    <a href="form.html" class="active">✏️ Tạo bài mới</a>
+  </aside>
+
+  <main class="admin-content">
+    <div class="admin-form">
+      <h2 id="form-title">Tạo bài viết mới</h2>
+      <div id="alert" style="display:none"></div>
+
+      <form id="article-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Tiêu đề *</label>
+            <input type="text" id="title" placeholder="Nhập tiêu đề..." required />
+          </div>
+          <div class="form-group">
+            <label>Slug *</label>
+            <input type="text" id="slug" placeholder="tieu-de-bai-viet" required />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Category *</label>
+            <select id="categoryId" required>
+              <option value="">-- Chọn category --</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Ảnh bìa</label>
+            <div class="upload-area" id="upload-area" onclick="document.getElementById('file-input').click()">
+              <span id="upload-label">📷 Nhấn để chọn ảnh</span>
+              <img id="upload-preview" class="upload-preview" style="display:none" />
+            </div>
+            <input type="file" id="file-input" accept="image/*" style="display:none" />
+            <input type="hidden" id="coverImageUrl" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Tóm tắt</label>
+          <textarea id="summary" rows="3" placeholder="Mô tả ngắn về bài viết..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Nội dung *</label>
+          <textarea id="content" rows="12" placeholder="Nội dung đầy đủ..." required></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">💾 Lưu Draft</button>
+          <button type="button" id="publish-btn" class="btn btn-success" style="display:none">🚀 Publish</button>
+          <a href="index.html" class="btn btn-secondary">Huỷ</a>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+
+<script src="../js/api.js"></script>
+<script>
+  requireAuth();
+
+  document.getElementById('logout-btn').addEventListener('click', (e) => {
+    e.preventDefault();
+    localStorage.removeItem('token');
+    window.location.href = '../login.html';
+  });
+
+  const articleId = new URLSearchParams(location.search).get('id');
+  const alertEl = document.getElementById('alert');
+
+  // Tự động tạo slug từ tiêu đề
+  document.getElementById('title').addEventListener('input', function () {
+    if (!articleId) { // chỉ tự generate khi tạo mới
+      document.getElementById('slug').value = this.value
+        .toLowerCase()
+        .normalize('NFD').replace(/[̀-ͯ]/g, '')
+        .replace(/đ/g, 'd').replace(/Đ/g, 'd')
+        .replace(/[^a-z0-9\s-]/g, '')
+        .trim().replace(/\s+/g, '-');
+    }
+  });
+
+  // Upload ảnh
+  document.getElementById('file-input').addEventListener('change', async function () {
+    const file = this.files[0];
+    if (!file) return;
+    try {
+      const res = await adminUpload(file);
+      document.getElementById('coverImageUrl').value = res.url;
+      const preview = document.getElementById('upload-preview');
+      preview.src = 'http://localhost:8080' + res.url;
+      preview.style.display = 'block';
+      document.getElementById('upload-label').style.display = 'none';
+    } catch (e) {
+      showAlert('error', 'Upload thất bại: ' + e.message);
+    }
+  });
+
+  // Load categories vào select
+  async function loadCategories() {
+    const select = document.getElementById('categoryId');
+    const cats = await adminGetCategories();
+    cats.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = c.name;
+      select.appendChild(opt);
+    });
+  }
+
+  // Nếu là trang edit thì load dữ liệu bài cũ vào form
+  async function loadArticle() {
+    if (!articleId) return;
+    document.getElementById('form-title').textContent = 'Chỉnh sửa bài viết';
+    document.getElementById('publish-btn').style.display = 'inline-block';
+
+    const a = await adminGetArticle(articleId);
+    document.getElementById('title').value = a.title;
+    document.getElementById('slug').value = a.slug;
+    document.getElementById('summary').value = a.summary || '';
+    document.getElementById('content').value = a.content;
+    document.getElementById('coverImageUrl').value = a.coverImageUrl || '';
+    document.getElementById('categoryId').value = a.categoryId;
+
+    if (a.coverImageUrl) {
+      const preview = document.getElementById('upload-preview');
+      preview.src = 'http://localhost:8080' + a.coverImageUrl;
+      preview.style.display = 'block';
+      document.getElementById('upload-label').style.display = 'none';
+    }
+
+    // Đổi nút publish thành unpublish nếu đã published
+    if (a.status === 'PUBLISHED') {
+      const btn = document.getElementById('publish-btn');
+      btn.textContent = '↩️ Đưa về Draft';
+      btn.className = 'btn btn-secondary';
+    }
+  }
+
+  // Submit form → Lưu Draft
+  document.getElementById('article-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const data = getFormData();
+    try {
+      if (articleId) {
+        await adminUpdateArticle(articleId, data);
+        showAlert('success', 'Đã cập nhật bài viết!');
+      } else {
+        const created = await adminCreateArticle(data);
+        showAlert('success', 'Đã tạo bài viết! Chuyển sang trang sửa...');
+        setTimeout(() => {
+          window.location.href = 'form.html?id=' + created.id;
+        }, 1000);
+      }
+    } catch (err) {
+      showAlert('error', err.message);
+    }
+  });
+
+  // Nút Publish / Unpublish
+  document.getElementById('publish-btn').addEventListener('click', async () => {
+    const btn = document.getElementById('publish-btn');
+    try {
+      const article = await adminGetArticle(articleId);
+      if (article.status === 'PUBLISHED') {
+        await adminUnpublish(articleId);
+        btn.textContent = '🚀 Publish';
+        btn.className = 'btn btn-success';
+        showAlert('success', 'Đã đưa về Draft.');
+      } else {
+        await adminPublish(articleId);
+        btn.textContent = '↩️ Đưa về Draft';
+        btn.className = 'btn btn-secondary';
+        showAlert('success', 'Bài viết đã được Publish!');
+      }
+    } catch (err) {
+      showAlert('error', err.message);
+    }
+  });
+
+  function getFormData() {
+    return {
+      title: document.getElementById('title').value.trim(),
+      slug: document.getElementById('slug').value.trim(),
+      summary: document.getElementById('summary').value.trim(),
+      content: document.getElementById('content').value.trim(),
+      coverImageUrl: document.getElementById('coverImageUrl').value || null,
+      categoryId: parseInt(document.getElementById('categoryId').value)
+    };
+  }
+
+  function showAlert(type, msg) {
+    alertEl.className = 'alert alert-' + type;
+    alertEl.textContent = msg;
+    alertEl.style.display = 'block';
+    window.scrollTo(0, 0);
+  }
+
+  // Khởi động
+  loadCategories().then(loadArticle);
+</script>
+
+</body>
+</html>
