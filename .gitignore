@@ -1,10 +1,10 @@
 # Maven
 target/
 !.mvn/wrapper/maven-wrapper.jar
+*.jar
 
 # Java
 *.class
-*.log
 
 # IntelliJ
 .idea/
@@ -21,5 +21,14 @@ Thumbs.db
 logs/
 *.log
 
-# build
+# Build
 build/
+
+# Env / secrets
+.env
+*.env
+
+# Misc
+lib/
+ôn tập/
+ôn tập */
