@@ -26,6 +26,12 @@ public class JwtFilter implements Filter {
         HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) res;
 
+        // OPTIONS là preflight request của browser — cho qua không cần token
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            chain.doFilter(req, res);
+            return;
+        }
+
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
