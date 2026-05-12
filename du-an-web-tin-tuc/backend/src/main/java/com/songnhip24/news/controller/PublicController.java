@@ -1,30 +1,49 @@
 package com.songnhip24.news.controller;
 
 import com.songnhip24.news.dto.ArticleResponse;
+import com.songnhip24.news.dto.NewsletterRequest;
 import com.songnhip24.news.service.ArticleService;
+import com.songnhip24.news.service.NewsletterService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/public")
 public class PublicController {
 
-    private final ArticleService service;
+    private final ArticleService articleService;
+    private final NewsletterService newsletterService;
 
-    public PublicController(ArticleService service) {
-        this.service = service;
+    public PublicController(ArticleService articleService, NewsletterService newsletterService) {
+        this.articleService = articleService;
+        this.newsletterService = newsletterService;
     }
 
-    // GET /api/public/articles — homepage: danh sách bài đã published
+    // Danh sách bài đã published (homepage)
     @GetMapping("/articles")
     public List<ArticleResponse> list() {
-        return service.getPublished();
+        return articleService.getPublished();
     }
 
-    // GET /api/public/articles/{slug} — trang detail bài viết
+    // Chi tiết bài viết theo slug (tự động tăng lượt xem)
     @GetMapping("/articles/{slug}")
     public ArticleResponse detail(@PathVariable String slug) {
-        return service.getBySlug(slug);
+        return articleService.getBySlug(slug);
+    }
+
+    // Bài viết theo chuyên mục
+    @GetMapping("/categories/{slug}/articles")
+    public List<ArticleResponse> byCategory(@PathVariable String slug) {
+        return articleService.getPublishedByCategory(slug);
+    }
+
+    // Đăng ký nhận bản tin
+    @PostMapping("/newsletter")
+    public ResponseEntity<Map<String, String>> subscribe(@RequestBody NewsletterRequest request) {
+        newsletterService.subscribe(request.getEmail());
+        return ResponseEntity.ok(Map.of("message", "Đăng ký thành công!"));
     }
 }

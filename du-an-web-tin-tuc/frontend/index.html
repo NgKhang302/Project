@@ -12,6 +12,7 @@
   <a class="logo" href="index.html">SongNhip24</a>
   <div class="nav-links">
     <a href="index.html">Trang chủ</a>
+    <span id="cat-nav"></span>
     <a href="admin/index.html">Admin</a>
   </div>
 </nav>
@@ -21,10 +22,29 @@
   <div id="article-grid" class="article-grid">
     <p class="loading">Đang tải...</p>
   </div>
+
+  <div class="newsletter-box">
+    <h3>Nhận bản tin mỗi tuần</h3>
+    <p>Cập nhật tin công nghệ, AI, việc làm ngay trong hộp thư của bạn.</p>
+    <div id="newsletter-alert" style="display:none"></div>
+    <form id="newsletter-form" class="newsletter-form">
+      <input type="email" id="newsletter-email" placeholder="email@example.com" required />
+      <button type="submit" class="btn btn-primary">Đăng ký</button>
+    </form>
+  </div>
 </div>
 
 <script src="js/api.js"></script>
 <script>
+  async function loadCategories() {
+    try {
+      const cats = await getPublicCategories();
+      document.getElementById('cat-nav').innerHTML = cats.map(c =>
+        `<a href="category.html?slug=${c.slug}">${c.name}</a>`
+      ).join('');
+    } catch (e) {}
+  }
+
   async function loadArticles() {
     const grid = document.getElementById('article-grid');
     try {
@@ -42,7 +62,7 @@
             <div class="card-category">${a.categoryName}</div>
             <div class="card-title">${a.title}</div>
             <div class="card-summary">${a.summary || ''}</div>
-            <div class="card-meta">${formatDate(a.publishedAt)} · ${a.createdBy}</div>
+            <div class="card-meta">${formatDate(a.publishedAt)} · ${a.createdBy} · 👁 ${a.viewCount}</div>
           </div>
         </div>
       `).join('');
@@ -51,6 +71,24 @@
     }
   }
 
+  document.getElementById('newsletter-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const alertEl = document.getElementById('newsletter-alert');
+    const email = document.getElementById('newsletter-email').value.trim();
+    try {
+      await subscribeNewsletter(email);
+      alertEl.className = 'alert alert-success';
+      alertEl.textContent = 'Đăng ký thành công! Cảm ơn bạn.';
+      alertEl.style.display = 'block';
+      document.getElementById('newsletter-form').reset();
+    } catch (err) {
+      alertEl.className = 'alert alert-error';
+      alertEl.textContent = err.message;
+      alertEl.style.display = 'block';
+    }
+  });
+
+  loadCategories();
   loadArticles();
 </script>
 

@@ -48,6 +48,27 @@ async function getPublicCategories() {
   return res.json();
 }
 
+async function getPublicTags() {
+  const res = await fetch(`${BASE}/api/public/tags`);
+  return res.json();
+}
+
+async function getArticlesByCategory(slug) {
+  const res = await fetch(`${BASE}/api/public/categories/${slug}/articles`);
+  return res.json();
+}
+
+async function subscribeNewsletter(email) {
+  const res = await fetch(`${BASE}/api/public/newsletter`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email })
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Đăng ký thất bại');
+  return data;
+}
+
 // ── ADMIN ARTICLES ────────────────────────────────
 async function adminGetArticles() {
   const res = await fetch(`${BASE}/api/admin/articles`, {
@@ -155,6 +176,33 @@ async function adminDeleteCategory(id) {
     headers: authHeaders()
   });
   if (!res.ok) throw new Error('Lỗi xoá category');
+}
+
+// ── ADMIN TAGS ────────────────────────────────────
+async function adminGetTags() {
+  const res = await fetch(`${BASE}/api/admin/tags`, { headers: authHeaders() });
+  return res.json();
+}
+
+async function adminCreateTag(data) {
+  const res = await fetch(`${BASE}/api/admin/tags`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || 'Lỗi tạo tag');
+  }
+  return res.json();
+}
+
+async function adminDeleteTag(id) {
+  const res = await fetch(`${BASE}/api/admin/tags/${id}`, {
+    method: 'DELETE',
+    headers: authHeaders()
+  });
+  if (!res.ok) throw new Error('Lỗi xoá tag');
 }
 
 // ── HELPER ────────────────────────────────────────

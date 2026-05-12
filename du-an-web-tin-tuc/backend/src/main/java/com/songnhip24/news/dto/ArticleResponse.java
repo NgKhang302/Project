@@ -3,8 +3,8 @@ package com.songnhip24.news.dto;
 import com.songnhip24.news.model.Article;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
-// DTO tránh circular reference khi serialize entity có @ManyToOne
 public class ArticleResponse {
     private Integer id;
     private String title;
@@ -13,14 +13,22 @@ public class ArticleResponse {
     private String content;
     private String status;
     private String coverImageUrl;
+    private String metaDescription;
     private Integer categoryId;
     private String categoryName;
+    private String categorySlug;
     private String createdBy;
+    private List<String> tags;
+    private long viewCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime publishedAt;
 
     public static ArticleResponse from(Article a) {
+        return from(a, 0L);
+    }
+
+    public static ArticleResponse from(Article a, long viewCount) {
         ArticleResponse r = new ArticleResponse();
         r.id = a.getId();
         r.title = a.getTitle();
@@ -29,9 +37,13 @@ public class ArticleResponse {
         r.content = a.getContent();
         r.status = a.getStatus();
         r.coverImageUrl = a.getCoverImageUrl();
+        r.metaDescription = a.getMetaDescription();
         r.categoryId = a.getCategory().getId();
         r.categoryName = a.getCategory().getName();
+        r.categorySlug = a.getCategory().getSlug();
         r.createdBy = a.getCreatedBy().getUsername();
+        r.tags = a.getTags().stream().map(t -> t.getName()).toList();
+        r.viewCount = viewCount;
         r.createdAt = a.getCreatedAt();
         r.updatedAt = a.getUpdatedAt();
         r.publishedAt = a.getPublishedAt();
@@ -45,9 +57,13 @@ public class ArticleResponse {
     public String getContent() { return content; }
     public String getStatus() { return status; }
     public String getCoverImageUrl() { return coverImageUrl; }
+    public String getMetaDescription() { return metaDescription; }
     public Integer getCategoryId() { return categoryId; }
     public String getCategoryName() { return categoryName; }
+    public String getCategorySlug() { return categorySlug; }
     public String getCreatedBy() { return createdBy; }
+    public List<String> getTags() { return tags; }
+    public long getViewCount() { return viewCount; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public LocalDateTime getPublishedAt() { return publishedAt; }

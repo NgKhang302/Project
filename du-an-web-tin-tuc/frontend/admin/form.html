@@ -20,6 +20,7 @@
   <aside class="sidebar">
     <a href="index.html">📄 Bài viết</a>
     <a href="categories.html">🗂 Category</a>
+    <a href="tags.html">🏷 Tags</a>
     <a href="form.html" class="active">✏️ Tạo bài mới</a>
   </aside>
 
@@ -61,6 +62,16 @@
         <div class="form-group">
           <label>Tóm tắt</label>
           <textarea id="summary" rows="3" placeholder="Mô tả ngắn về bài viết..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Meta Description (SEO)</label>
+          <textarea id="metaDescription" rows="2" placeholder="Mô tả hiển thị trên Google, tối đa 160 ký tự..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Tags</label>
+          <div id="tags-container" class="tags-container"></div>
         </div>
 
         <div class="form-group">
@@ -119,7 +130,6 @@
     }
   });
 
-  // Load categories vào select
   async function loadCategories() {
     const select = document.getElementById('categoryId');
     const cats = await adminGetCategories();
@@ -129,6 +139,21 @@
       opt.textContent = c.name;
       select.appendChild(opt);
     });
+  }
+
+  async function loadTags() {
+    const container = document.getElementById('tags-container');
+    const tags = await adminGetTags();
+    container.innerHTML = tags.map(t => `
+      <label class="tag-checkbox">
+        <input type="checkbox" name="tag" value="${t.id}" /> ${t.name}
+      </label>
+    `).join('');
+  }
+
+  function getSelectedTagIds() {
+    return Array.from(document.querySelectorAll('input[name="tag"]:checked'))
+      .map(el => parseInt(el.value));
   }
 
   // Nếu là trang edit thì load dữ liệu bài cũ vào form
@@ -141,9 +166,18 @@
     document.getElementById('title').value = a.title;
     document.getElementById('slug').value = a.slug;
     document.getElementById('summary').value = a.summary || '';
+    document.getElementById('metaDescription').value = a.metaDescription || '';
     document.getElementById('content').value = a.content;
     document.getElementById('coverImageUrl').value = a.coverImageUrl || '';
     document.getElementById('categoryId').value = a.categoryId;
+    if (a.tags) {
+      a.tags.forEach(tagName => {
+        const checkboxes = document.querySelectorAll('input[name="tag"]');
+        checkboxes.forEach(cb => {
+          if (cb.parentElement.textContent.trim() === tagName) cb.checked = true;
+        });
+      });
+    }
 
     if (a.coverImageUrl) {
       const preview = document.getElementById('upload-preview');
@@ -206,9 +240,11 @@
       title: document.getElementById('title').value.trim(),
       slug: document.getElementById('slug').value.trim(),
       summary: document.getElementById('summary').value.trim(),
+      metaDescription: document.getElementById('metaDescription').value.trim() || null,
       content: document.getElementById('content').value.trim(),
       coverImageUrl: document.getElementById('coverImageUrl').value || null,
-      categoryId: parseInt(document.getElementById('categoryId').value)
+      categoryId: parseInt(document.getElementById('categoryId').value),
+      tagIds: getSelectedTagIds()
     };
   }
 
@@ -219,8 +255,7 @@
     window.scrollTo(0, 0);
   }
 
-  // Khởi động
-  loadCategories().then(loadArticle);
+  Promise.all([loadCategories(), loadTags()]).then(loadArticle);
 </script>
 
 </body>

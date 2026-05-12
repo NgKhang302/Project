@@ -35,18 +35,29 @@
     try {
       const a = await getArticleBySlug(slug);
       document.title = a.title + ' – SongNhip24';
+      if (a.metaDescription) {
+        const meta = document.createElement('meta');
+        meta.name = 'description';
+        meta.content = a.metaDescription;
+        document.head.appendChild(meta);
+      }
       el.innerHTML = `
         <div class="article-detail">
-          <div class="card-category" style="margin-bottom:8px">${a.categoryName}</div>
+          <a class="card-category" href="category.html?slug=${a.categorySlug}" style="margin-bottom:8px">${a.categoryName}</a>
           <h1>${a.title}</h1>
           <div class="article-meta">
             <span>📅 ${formatDate(a.publishedAt)}</span>
             <span>✍️ ${a.createdBy}</span>
+            <span>👁 ${a.viewCount} lượt xem</span>
           </div>
           ${a.coverImageUrl
             ? `<img class="article-cover" src="http://localhost:8080${a.coverImageUrl}" alt="${a.title}" />`
             : ''}
           <div class="article-content">${a.content}</div>
+          ${a.tags && a.tags.length > 0 ? `
+          <div class="article-tags">
+            ${a.tags.map(t => `<span class="tag">${t}</span>`).join('')}
+          </div>` : ''}
         </div>
       `;
     } catch (e) {

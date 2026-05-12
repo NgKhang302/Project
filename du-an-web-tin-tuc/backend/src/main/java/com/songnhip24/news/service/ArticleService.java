@@ -2,15 +2,13 @@ package com.songnhip24.news.service;
 
 import com.songnhip24.news.dto.ArticleRequest;
 import com.songnhip24.news.dto.ArticleResponse;
-import com.songnhip24.news.model.Article;
-import com.songnhip24.news.model.Category;
-import com.songnhip24.news.model.User;
-import com.songnhip24.news.repository.ArticleRepository;
-import com.songnhip24.news.repository.CategoryRepository;
-import com.songnhip24.news.repository.UserRepository;
+import com.songnhip24.news.model.*;
+import com.songnhip24.news.repository.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -20,36 +18,38 @@ public class ArticleService {
     private final ArticleRepository articleRepository;
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
+    private final TagRepository tagRepository;
+    private final ArticleViewRepository articleViewRepository;
 
     public ArticleService(ArticleRepository articleRepository,
                           CategoryRepository categoryRepository,
-                          UserRepository userRepository) {
+                          UserRepository userRepository,
+                          TagRepository tagRepository,
+                          ArticleViewRepository articleViewRepository) {
         this.articleRepository = articleRepository;
         this.categoryRepository = categoryRepository;
         this.userRepository = userRepository;
+        this.tagRepository = tagRepository;
+        this.articleViewRepository = articleViewRepository;
     }
 
-    // Admin: lấy tất cả bài (cả draft lẫn published)
     public List<ArticleResponse> getAll() {
         return articleRepository.findAll().stream()
-                .map(ArticleResponse::from)
+                .map(a -> ArticleResponse.from(a, articleViewRepository.countByArticleId(a.getId())))
                 .toList();
     }
 
-    // Admin: lấy 1 bài theo id
     public ArticleResponse getById(Integer id) {
-        return ArticleResponse.from(findById(id));
+        Article a = findById(id);
+        return ArticleResponse.from(a, articleViewRepository.countByArticleId(a.getId()));
     }
 
-    // Tạo bài mới, mặc định status = DRAFT
+    @Transactional
     public ArticleResponse create(ArticleRequest request, String username) {
         validate(request);
         if (articleRepository.existsBySlug(request.getSlug())) {
             throw new IllegalArgumentException("Slug already exists: " + request.getSlug());
         }
-
-        User author = findUser(username);
-        Category category = findCategory(request.getCategoryId());
 
         Article article = new Article();
         article.setTitle(request.getTitle());
@@ -57,16 +57,18 @@ public class ArticleService {
         article.setSummary(request.getSummary());
         article.setContent(request.getContent());
         article.setCoverImageUrl(request.getCoverImageUrl());
+        article.setMetaDescription(request.getMetaDescription());
         article.setStatus("DRAFT");
-        article.setCategory(category);
-        article.setCreatedBy(author);
+        article.setCategory(findCategory(request.getCategoryId()));
+        article.setCreatedBy(findUser(username));
+        article.setTags(resolveTags(request.getTagIds()));
         article.setCreatedAt(LocalDateTime.now());
         article.setUpdatedAt(LocalDateTime.now());
 
-        return ArticleResponse.from(articleRepository.save(article));
+        return ArticleResponse.from(articleRepository.save(article), 0L);
     }
 
-    // Cập nhật nội dung bài (vẫn giữ nguyên status)
+    @Transactional
     public ArticleResponse update(Integer id, ArticleRequest request) {
         validate(request);
         Article article = findById(id);
@@ -80,28 +82,31 @@ public class ArticleService {
         article.setSummary(request.getSummary());
         article.setContent(request.getContent());
         article.setCoverImageUrl(request.getCoverImageUrl());
+        article.setMetaDescription(request.getMetaDescription());
         article.setCategory(findCategory(request.getCategoryId()));
+        article.setTags(resolveTags(request.getTagIds()));
         article.setUpdatedAt(LocalDateTime.now());
 
-        return ArticleResponse.from(articleRepository.save(article));
+        Article saved = articleRepository.save(article);
+        return ArticleResponse.from(saved, articleViewRepository.countByArticleId(saved.getId()));
     }
 
-    // Publish bài: đổi status → PUBLISHED, ghi publishedAt
     public ArticleResponse publish(Integer id) {
         Article article = findById(id);
         article.setStatus("PUBLISHED");
         article.setPublishedAt(LocalDateTime.now());
         article.setUpdatedAt(LocalDateTime.now());
-        return ArticleResponse.from(articleRepository.save(article));
+        Article saved = articleRepository.save(article);
+        return ArticleResponse.from(saved, articleViewRepository.countByArticleId(saved.getId()));
     }
 
-    // Đưa về draft
     public ArticleResponse unpublish(Integer id) {
         Article article = findById(id);
         article.setStatus("DRAFT");
         article.setPublishedAt(null);
         article.setUpdatedAt(LocalDateTime.now());
-        return ArticleResponse.from(articleRepository.save(article));
+        Article saved = articleRepository.save(article);
+        return ArticleResponse.from(saved, articleViewRepository.countByArticleId(saved.getId()));
     }
 
     public void delete(Integer id) {
@@ -109,21 +114,34 @@ public class ArticleService {
         articleRepository.deleteById(id);
     }
 
-    // Public: chỉ lấy bài đã published
     public List<ArticleResponse> getPublished() {
         return articleRepository.findByStatusOrderByPublishedAtDesc("PUBLISHED").stream()
-                .map(ArticleResponse::from)
+                .map(a -> ArticleResponse.from(a, articleViewRepository.countByArticleId(a.getId())))
                 .toList();
     }
 
-    // Public: lấy bài theo slug
+    public List<ArticleResponse> getPublishedByCategory(String categorySlug) {
+        Category category = categoryRepository.findBySlug(categorySlug)
+                .orElseThrow(() -> new NoSuchElementException("Category not found: " + categorySlug));
+        return articleRepository.findByStatusAndCategoryOrderByPublishedAtDesc("PUBLISHED", category).stream()
+                .map(a -> ArticleResponse.from(a, articleViewRepository.countByArticleId(a.getId())))
+                .toList();
+    }
+
+    @Transactional
     public ArticleResponse getBySlug(String slug) {
         Article article = articleRepository.findBySlug(slug)
                 .orElseThrow(() -> new NoSuchElementException("Article not found: " + slug));
         if (!"PUBLISHED".equals(article.getStatus())) {
             throw new NoSuchElementException("Article not found: " + slug);
         }
-        return ArticleResponse.from(article);
+        ArticleView view = new ArticleView();
+        view.setArticle(article);
+        view.setViewedAt(LocalDateTime.now());
+        articleViewRepository.save(view);
+
+        long viewCount = articleViewRepository.countByArticleId(article.getId());
+        return ArticleResponse.from(article, viewCount);
     }
 
     private Article findById(Integer id) {
@@ -140,6 +158,11 @@ public class ArticleService {
         if (categoryId == null) throw new IllegalArgumentException("Category id is required");
         return categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new NoSuchElementException("Category not found: " + categoryId));
+    }
+
+    private List<Tag> resolveTags(List<Integer> tagIds) {
+        if (tagIds == null || tagIds.isEmpty()) return new ArrayList<>();
+        return tagRepository.findAllById(tagIds);
     }
 
     private void validate(ArticleRequest request) {

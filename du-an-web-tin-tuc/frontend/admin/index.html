@@ -20,6 +20,7 @@
   <aside class="sidebar">
     <a href="index.html" class="active">📄 Bài viết</a>
     <a href="categories.html">🗂 Category</a>
+    <a href="tags.html">🏷 Tags</a>
     <a href="form.html">✏️ Tạo bài mới</a>
   </aside>
 
@@ -39,6 +40,7 @@
             <th>Tiêu đề</th>
             <th>Category</th>
             <th>Trạng thái</th>
+            <th>👁 Views</th>
             <th>Ngày tạo</th>
             <th>Hành động</th>
           </tr>
@@ -76,6 +78,7 @@
           <td><strong>${a.title}</strong></td>
           <td>${a.categoryName}</td>
           <td><span class="badge badge-${a.status.toLowerCase()}">${a.status}</span></td>
+          <td>${a.viewCount}</td>
           <td>${formatDate(a.createdAt)}</td>
           <td style="display:flex;gap:6px;flex-wrap:wrap">
             <a href="form.html?id=${a.id}" class="btn btn-warning btn-sm">Sửa</a>
