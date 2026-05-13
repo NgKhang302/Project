@@ -15,7 +15,7 @@ du-an-web-tin-tuc/
 ### Public
 - Trang chủ — danh sách bài đã published, lượt xem
 - Trang chuyên mục — lọc bài theo category
-- Trang chi tiết bài viết — tự động tăng lượt xem, hiển thị tags
+- Trang chi tiết bài viết — tự động tăng lượt xem, hiển thị tags, SEO meta description
 - Đăng ký nhận bản tin email
 
 ### Admin (yêu cầu đăng nhập)

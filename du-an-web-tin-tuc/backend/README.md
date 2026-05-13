@@ -32,12 +32,19 @@ Chạy `schema.sql` để tạo toàn bộ bảng:
 | Bảng | Mô tả |
 |---|---|
 | `users` | Tài khoản admin |
-| `categories` | Chuyên mục |
-| `tags` | Nhãn bài viết |
-| `articles` | Bài viết (DRAFT / PUBLISHED) |
-| `article_tags` | Quan hệ nhiều-nhiều article ↔ tag |
-| `article_views` | Lượt xem từng bài |
+| `categories` | Chuyên mục (id, name, slug, description) |
+| `tags` | Nhãn bài viết (id, name, slug) |
+| `articles` | Bài viết — trạng thái DRAFT / PUBLISHED, có `meta_description` cho SEO |
+| `article_tags` | Quan hệ nhiều-nhiều article ↔ tag, cascade xóa theo article/tag |
+| `article_views` | Lượt xem từng bài, cascade xóa theo article |
 | `newsletter_subscribers` | Email đăng ký bản tin |
+
+**Quan hệ:**
+- `articles.category_id` → `categories.id`
+- `articles.created_by` → `users.id`
+- `article_tags.article_id` → `articles.id` (ON DELETE CASCADE)
+- `article_tags.tag_id` → `tags.id` (ON DELETE CASCADE)
+- `article_views.article_id` → `articles.id` (ON DELETE CASCADE)
 
 ## Cấu hình môi trường
 
