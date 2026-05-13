@@ -68,6 +68,8 @@ public class ArticleController {
         return ResponseEntity.noContent().build();
     }
 
+    private static final List<String> ALLOWED_IMAGE_TYPES = List.of("jpg", "jpeg", "png", "webp", "gif");
+
     // POST /api/admin/upload — upload ảnh bìa
     // Trả về đường dẫn để gán vào coverImageUrl khi tạo bài
     @PostMapping("/upload")
@@ -76,7 +78,15 @@ public class ArticleController {
             throw new IllegalArgumentException("File is required");
         }
 
-        String filename = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+        String original = file.getOriginalFilename();
+        if (original == null || !original.contains(".")) {
+            throw new IllegalArgumentException("Invalid file name");
+        }
+        String ext = original.substring(original.lastIndexOf('.') + 1).toLowerCase();
+        if (!ALLOWED_IMAGE_TYPES.contains(ext)) {
+            throw new IllegalArgumentException("Only image files are allowed (jpg, jpeg, png, webp, gif)");
+        }
+        String filename = System.currentTimeMillis() + "." + ext;
         File uploadDir = new File("uploads");
         if (!uploadDir.exists() && !uploadDir.mkdirs()) {
             throw new IllegalStateException("Could not create uploads directory");

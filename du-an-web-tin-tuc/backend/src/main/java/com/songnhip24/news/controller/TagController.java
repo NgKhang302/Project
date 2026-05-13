@@ -32,6 +32,12 @@ public class TagController {
         return ResponseEntity.ok(service.create(request));
     }
 
+    @PutMapping("/api/admin/tags/{id}")
+    public ResponseEntity<Tag> update(@PathVariable Integer id,
+                                      @RequestBody TagRequest request) {
+        return ResponseEntity.ok(service.update(id, request));
+    }
+
     @DeleteMapping("/api/admin/tags/{id}")
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
         service.delete(id);

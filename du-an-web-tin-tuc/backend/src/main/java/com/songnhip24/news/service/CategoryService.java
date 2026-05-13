@@ -4,6 +4,7 @@ import com.songnhip24.news.dto.CategoryRequest;
 import com.songnhip24.news.model.Category;
 import com.songnhip24.news.repository.CategoryRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -39,6 +40,7 @@ public class CategoryService {
         return repository.save(category);
     }
 
+    @Transactional
     public Category update(Integer id, CategoryRequest request) {
         validate(request);
         Category category = getById(id);
