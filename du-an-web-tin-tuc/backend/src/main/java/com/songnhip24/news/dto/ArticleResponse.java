@@ -26,9 +26,9 @@ public class ArticleResponse {
 
     public static ArticleResponse from(Article a) {
         return from(a, 0L);
-    }
+    } //- Danh sách bài viết (không cần đếm)- Công khai danh mục (không cần đếm)- Tìm kiếm (không cần đếm)
 
-    public static ArticleResponse from(Article a, long viewCount) {
+    public static ArticleResponse from(Article a, long viewCount) { //- Xem chi tiết bài viết (cần hiển thị lượt xem)- Trang bài viết (cần hiển thị lượt xem)
         ArticleResponse r = new ArticleResponse();
         r.id = a.getId();
         r.title = a.getTitle();
@@ -38,12 +38,16 @@ public class ArticleResponse {
         r.status = a.getStatus();
         r.coverImageUrl = a.getCoverImageUrl();
         r.metaDescription = a.getMetaDescription();
+
         r.categoryId = a.getCategory().getId();
         r.categoryName = a.getCategory().getName();
         r.categorySlug = a.getCategory().getSlug();
+
         r.createdBy = a.getCreatedBy().getUsername();
-        r.tags = a.getTags().stream().map(t -> t.getName()).toList();
+
+        r.tags = a.getTags().stream().map(t -> t.getName()).toList(); //Danh sách [Tag, Tag, Tag] còn stream là Dòng Tag → Tag → Tag
         r.viewCount = viewCount;
+
         r.createdAt = a.getCreatedAt();
         r.updatedAt = a.getUpdatedAt();
         r.publishedAt = a.getPublishedAt();

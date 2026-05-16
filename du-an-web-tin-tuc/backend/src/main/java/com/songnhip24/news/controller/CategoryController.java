@@ -48,6 +48,6 @@ public class CategoryController {
     @DeleteMapping("/api/admin/categories/{id}")
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
         service.delete(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.noContent().build(); //204 No Content + không có body
     }
 }

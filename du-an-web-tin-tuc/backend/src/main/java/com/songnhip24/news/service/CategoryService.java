@@ -27,7 +27,7 @@ public class CategoryService {
     }
 
     public Category create(CategoryRequest request) {
-        validate(request);
+        validate(request); //name slug k đc rỗng
         if (repository.existsBySlug(request.getSlug())) {
             throw new IllegalArgumentException("Slug already exists: " + request.getSlug());
         }
@@ -43,7 +43,7 @@ public class CategoryService {
         validate(request);
         Category category = getById(id);
 
-        // Cho phép giữ slug cũ, chỉ báo lỗi nếu slug mới đã tồn tại ở record khác
+        // Nếu (User đang đổi slug) VÀ (Slug mới đã tồn tại)
         if (!category.getSlug().equals(request.getSlug()) && repository.existsBySlug(request.getSlug())) {
             throw new IllegalArgumentException("Slug already exists: " + request.getSlug());
         }
@@ -58,7 +58,7 @@ public class CategoryService {
         getById(id); // ném lỗi nếu không tồn tại
         repository.deleteById(id);
     }
-
+//validate
     private void validate(CategoryRequest request) {
         if (request.getName() == null || request.getName().isBlank()) {
             throw new IllegalArgumentException("Category name is required");

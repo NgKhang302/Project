@@ -42,7 +42,7 @@ public class Article {
     )
     private List<Tag> tags = new ArrayList<>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY) // Tải tag khi nào dùng mới tải
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 

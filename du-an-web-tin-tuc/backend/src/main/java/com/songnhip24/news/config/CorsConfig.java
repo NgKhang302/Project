@@ -17,8 +17,8 @@ public class CorsConfig {
         // Cho phép frontend từ bất kỳ port local nào gọi vào
         config.setAllowedOriginPatterns(List.of("http://localhost:*"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(true);
+        config.setAllowedHeaders(List.of("*"));  // cho phép mọi header
+        config.setAllowCredentials(true);  // cho phép gửi cookie
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/api/**", config);

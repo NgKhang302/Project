@@ -23,7 +23,7 @@ public class NewsletterService {
             throw new IllegalArgumentException("Email already subscribed");
         }
         NewsletterSubscriber subscriber = new NewsletterSubscriber();
-        subscriber.setEmail(email.toLowerCase().trim());
+        subscriber.setEmail(email.toLowerCase().trim()); //trim là xóa spaces ở đầu và cúi '' ahah@ '' > ''ahah@''
         subscriber.setSubscribedAt(LocalDateTime.now());
         repository.save(subscriber);
     }

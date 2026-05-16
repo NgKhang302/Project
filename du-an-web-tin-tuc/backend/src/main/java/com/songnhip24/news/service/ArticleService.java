@@ -32,23 +32,23 @@ public class ArticleService {
         this.tagRepository = tagRepository;
         this.articleViewRepository = articleViewRepository;
     }
-
+//admin coi tất cả các bài
     public List<ArticleResponse> getAll() {
         return articleRepository.findAll().stream()
                 .map(a -> ArticleResponse.from(a, articleViewRepository.countByArticleId(a.getId())))
                 .toList();
     }
-
+// 1 bài cụ thể
     public ArticleResponse getById(Integer id) {
         Article a = findById(id);
         return ArticleResponse.from(a, articleViewRepository.countByArticleId(a.getId()));
     }
 
-    @Transactional
+    @Transactional  //nếu lõi dừng hủy tất cả
     public ArticleResponse create(ArticleRequest request, String username) {
-        validate(request);
+        validate(request); // kiểm trả title slug content ko đc rỗng
         if (articleRepository.existsBySlug(request.getSlug())) {
-            throw new IllegalArgumentException("Slug already exists: " + request.getSlug());
+            throw new IllegalArgumentException("Slug already exists: " + request.getSlug()); //cheek slug
         }
 
         Article article = new Article();
@@ -58,23 +58,25 @@ public class ArticleService {
         article.setContent(request.getContent());
         article.setCoverImageUrl(request.getCoverImageUrl());
         article.setMetaDescription(request.getMetaDescription());
-        article.setStatus("DRAFT");
+        article.setStatus("DRAFT"); // sever tự set
+
         article.setCategory(findCategory(request.getCategoryId()));
         article.setCreatedBy(findUser(username));
         article.setTags(resolveTags(request.getTagIds()));
+
         article.setCreatedAt(LocalDateTime.now());
         article.setUpdatedAt(LocalDateTime.now());
 
-        return ArticleResponse.from(articleRepository.save(article), 0L);
+        return ArticleResponse.from(articleRepository.save(article), 0L); // trả response(save in db)
     }
 
     @Transactional
     public ArticleResponse update(Integer id, ArticleRequest request) {
         validate(request);
-        Article article = findById(id);
+        Article article = findById(id); // tìm bài cũ
 
-        if (!article.getSlug().equals(request.getSlug()) && articleRepository.existsBySlug(request.getSlug())) {
-            throw new IllegalArgumentException("Slug already exists: " + request.getSlug());
+        if (!article.getSlug().equals(request.getSlug()) && articleRepository.existsBySlug(request.getSlug())) { //equals so sánh 2 nọi dung có dóng nhau k
+            throw new IllegalArgumentException("Slug already exists: " + request.getSlug());  //slug trong db có trùng với slug data user mún cập nhật k && slug mới đó có trùng với slug cũ k
         }
 
         article.setTitle(request.getTitle());
@@ -87,8 +89,8 @@ public class ArticleService {
         article.setTags(resolveTags(request.getTagIds()));
         article.setUpdatedAt(LocalDateTime.now());
 
-        Article saved = articleRepository.save(article);
-        return ArticleResponse.from(saved, articleViewRepository.countByArticleId(saved.getId()));
+        Article saved = articleRepository.save(article);  // lưu vào db
+        return ArticleResponse.from(saved, articleViewRepository.countByArticleId(saved.getId())); // gộp bài viết+ số viesw -> trả về cho client
     }
 
     public ArticleResponse publish(Integer id) {
@@ -97,8 +99,7 @@ public class ArticleService {
         article.setPublishedAt(LocalDateTime.now());
         article.setUpdatedAt(LocalDateTime.now());
         Article saved = articleRepository.save(article);
-        return ArticleResponse.from(saved, articleViewRepository.countByArticleId(saved.getId()));
-    }
+        return ArticleResponse.from(saved, 0L);    }
 
     public ArticleResponse unpublish(Integer id) {
         Article article = findById(id);
@@ -113,13 +114,13 @@ public class ArticleService {
         findById(id);
         articleRepository.deleteById(id);
     }
-
+//reader coi bài đã đăng
     public List<ArticleResponse> getPublished() {
         return articleRepository.findByStatusOrderByPublishedAtDesc("PUBLISHED").stream()
                 .map(a -> ArticleResponse.from(a, articleViewRepository.countByArticleId(a.getId())))
                 .toList();
     }
-
+//coi 1 bài cụ thể
     public List<ArticleResponse> getPublishedByCategory(String categorySlug) {
         Category category = categoryRepository.findBySlug(categorySlug)
                 .orElseThrow(() -> new NoSuchElementException("Category not found: " + categorySlug));
@@ -143,7 +144,7 @@ public class ArticleService {
         long viewCount = articleViewRepository.countByArticleId(article.getId());
         return ArticleResponse.from(article, viewCount);
     }
-
+//VALIDATE DATA
     private Article findById(Integer id) {
         return articleRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Article not found: " + id));
@@ -160,7 +161,7 @@ public class ArticleService {
                 .orElseThrow(() -> new NoSuchElementException("Category not found: " + categoryId));
     }
 
-    private List<Tag> resolveTags(List<Integer> tagIds) {
+    private List<Tag> resolveTags(List<Integer> tagIds) {    //resolveTags tìm nhiều tags theo list IDs
         if (tagIds == null || tagIds.isEmpty()) return new ArrayList<>();
         return tagRepository.findAllById(tagIds);
     }
@@ -177,3 +178,4 @@ public class ArticleService {
         }
     }
 }
+//isBlank cheek có kí tự k, k care spaces, spaces dc xem là trống

@@ -11,5 +11,5 @@ public interface ArticleRepository extends JpaRepository<Article, Integer> {
     List<Article> findByStatusOrderByPublishedAtDesc(String status);
     List<Article> findByStatusAndCategoryOrderByPublishedAtDesc(String status, Category category);
     Optional<Article> findBySlug(String slug);
-    boolean existsBySlug(String slug);
+    boolean existsBySlug(String slug);  //Kiểm tra trùng slug khi tạo bài
 }
