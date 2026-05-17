@@ -1,5 +1,6 @@
 package com.songnhip24.news.config;
 
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
@@ -10,20 +11,21 @@ import java.util.List;
 
 @Configuration
 public class CorsConfig {
-
+// cho phép frontend gọi API  sang backend
     @Bean
-    public CorsFilter corsFilter() {
+    public FilterRegistrationBean<CorsFilter> corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
-        // Cho phép frontend từ bất kỳ port local nào gọi vào
         config.setAllowedOriginPatterns(List.of("http://localhost:*"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("*"));  // cho phép mọi header
-        config.setAllowCredentials(true);  // cho phép gửi cookie
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/api/**", config);
         source.registerCorsConfiguration("/uploads/**", config);
 
-        return new CorsFilter(source);
+        FilterRegistrationBean<CorsFilter> reg = new FilterRegistrationBean<>(new CorsFilter(source));
+        reg.setOrder(0); // chạy trước JwtFilter (order 1)
+        return reg;
     }
 }

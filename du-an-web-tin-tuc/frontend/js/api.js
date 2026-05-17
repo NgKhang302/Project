@@ -1,6 +1,6 @@
-const BASE = 'http://localhost:8080';
+const BASE = 'http://localhost:8080';  //Tất cả URL API đều bắt đầu từ BASE
 
-// Lấy token đang lưu trong localStorage
+// Lấy token đang lưu trong localStorage  kho lưu data của browser
 function getToken() {
   return localStorage.getItem('token');
 }
@@ -13,7 +13,7 @@ function authHeaders() {
   };
 }
 
-// Nếu chưa login mà vào trang admin thì đẩy về login
+// Nếu Chua login mà vào trans admin thì đẩy về login
 function requireAuth() {
   if (!getToken()) {
     window.location.href = '/login.html';
@@ -45,11 +45,6 @@ async function getArticleBySlug(slug) {
 
 async function getPublicCategories() {
   const res = await fetch(`${BASE}/api/public/categories`);
-  return res.json();
-}
-
-async function getPublicTags() {
-  const res = await fetch(`${BASE}/api/public/tags`);
   return res.json();
 }
 
