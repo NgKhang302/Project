@@ -36,6 +36,7 @@ public class JwtFilter implements Filter {   // interface của java servlet
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            addCorsHeaders(request, response);
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Missing or invalid Authorization header");
             return;
         }
@@ -44,11 +45,20 @@ public class JwtFilter implements Filter {   // interface của java servlet
 
         if (!jwtService.validate(token)) {
             log.warn("JWT invalid for path {}", request.getRequestURI());
+            addCorsHeaders(request, response);
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired token");  //401
             return;
         }
 
         request.setAttribute("username", jwtService.getUsername(token));
         chain.doFilter(req, res);
+    }
+
+    private void addCorsHeaders(HttpServletRequest request, HttpServletResponse response) {
+        String origin = request.getHeader("Origin");
+        if (origin != null) {
+            response.setHeader("Access-Control-Allow-Origin", origin);
+            response.setHeader("Access-Control-Allow-Credentials", "true");
+        }
     }
 }

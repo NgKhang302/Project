@@ -87,7 +87,7 @@ public class ArticleController {
             throw new IllegalStateException("Could not create uploads directory");
         }
         // lưu file vào server
-        file.transferTo(new File("uploads/" + filename));
+        file.transferTo(new File(uploadDir.getAbsolutePath() + "/" + filename));
 
         // Trả về URL để frontend điền vào coverImageUrl
         String url = "/uploads/" + filename;
