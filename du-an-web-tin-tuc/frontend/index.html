@@ -50,6 +50,7 @@
 
 <script src="js/api.js"></script>
 <script>
+  /* global BASE, getPublicCategories, getPublishedArticles, getArticlesByCategory, subscribeNewsletter, formatDate */
   async function loadCategories() {
     try {
       const cats = await getPublicCategories();

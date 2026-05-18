@@ -55,6 +55,7 @@
 
 <script src="../js/api.js"></script>
 <script>
+  /* global requireAuth, adminGetArticles, adminPublish, adminUnpublish, adminDeleteArticle, formatDate */
   requireAuth();
 
   document.getElementById('logout-btn').addEventListener('click', (e) => {
@@ -69,7 +70,7 @@
     try {
       const articles = await adminGetArticles();
       if (articles.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="empty">Chưa có bài viết nào.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="empty">Chưa có bài Viet nào.</td></tr>';
         return;
       }
       tbody.innerHTML = articles.map(a => `
@@ -100,7 +101,7 @@
     if (!confirm('Publish bài này?')) return;
     try {
       await adminPublish(id);
-      loadArticles();
+      await loadArticles();
     } catch (e) { alert(e.message); }
   }
 
@@ -108,7 +109,7 @@
     if (!confirm('Đưa về Draft?')) return;
     try {
       await adminUnpublish(id);
-      loadArticles();
+      await loadArticles();
     } catch (e) { alert(e.message); }
   }
 
@@ -116,7 +117,7 @@
     if (!confirm('Xoá bài viết này?')) return;
     try {
       await adminDeleteArticle(id);
-      loadArticles();
+      await loadArticles();
     } catch (e) { alert(e.message); }
   }
 

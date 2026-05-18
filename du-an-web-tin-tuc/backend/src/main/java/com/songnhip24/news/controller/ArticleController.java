@@ -41,9 +41,6 @@ public class ArticleController {
             @RequestBody ArticleRequest request) { //json body > java object
         //Lấy username từ request (JwtFilter đã lưu)
         String username = (String) req.getAttribute("username");
-        //  Gọi service tạo bài viết
-        ArticleResponse articleResponse = service.create(request, username);
-        // Tạo bài + wrap vào 200 OK + return
         return ResponseEntity.ok(service.create(request, username));
     }
 

@@ -68,6 +68,7 @@
 
 <script src="../js/api.js"></script>
 <script>
+  /* global requireAuth, adminGetTags, adminCreateTag, adminDeleteTag */
   requireAuth();
 
   document.getElementById('logout-btn').addEventListener('click', (e) => {
@@ -125,7 +126,7 @@
       });
       document.getElementById('tag-form').reset();
       showAlert('success', 'Đã thêm tag!');
-      loadTags();
+      await loadTags();
     } catch (err) {
       showAlert('error', err.message);
     }
@@ -135,7 +136,7 @@
     if (!confirm(`Xoá tag "${name}"?`)) return;
     try {
       await adminDeleteTag(id);
-      loadTags();
+      await loadTags();
     } catch (e) {
       showAlert('error', 'Xoá thất bại: ' + e.message);
     }

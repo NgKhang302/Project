@@ -23,6 +23,7 @@
 
 <script src="js/api.js"></script>
 <script>
+  /* global BASE, getArticleBySlug, formatDate */
   async function loadArticle() {
     const slug = new URLSearchParams(location.search).get('slug');
     const el = document.getElementById('content');
