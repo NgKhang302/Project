@@ -1,3 +1,5 @@
+cd /home/nguyen-khang/Intenr/du-an-web-tin-tuc/backend
+  mvn spring-boot:run
 # SongNhip24 — Web Tin Tức
 
 Web tin tức tập trung vào công nghệ, AI, việc làm và kiếm tiền online.
