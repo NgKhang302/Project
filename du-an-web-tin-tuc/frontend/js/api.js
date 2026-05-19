@@ -16,7 +16,7 @@ function authHeaders() {
 // Nếu Chua login mà vào trans admin thì đẩy về login
 function requireAuth() {
   if (!getToken()) {
-    window.location.href = '/login.html';
+    window.location.href = '../login.html';
   }
 }
 
@@ -69,7 +69,14 @@ async function adminGetArticles() {
   const res = await fetch(`${BASE}/api/admin/articles`, {
     headers: authHeaders()
   });
-  return res.json();
+  if (res.status === 401 || res.status === 403) {
+    localStorage.removeItem('token');
+    window.location.href = '../login.html';
+    return [];
+  }
+  if (!res.ok) throw new Error('Lỗi tải danh sách bài viết');
+  const data = await res.json();
+  return Array.isArray(data) ? data : [];
 }
 
 async function adminGetArticle(id) {
