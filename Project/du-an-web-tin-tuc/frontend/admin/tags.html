@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin – Quản lý Tags</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="../index.html">SongNhip24</a>
+  <div class="nav-links">
+    <a href="../index.html">Xem trang chủ</a>
+    <a href="#" id="logout-btn">Đăng xuất</a>
+  </div>
+</nav>
+
+<div class="admin-layout">
+  <aside class="sidebar">
+    <a href="index.html">📄 Bài viết</a>
+    <a href="categories.html">🗂 Category</a>
+    <a href="tags.html" class="active">🏷 Tags</a>
+    <a href="form.html">✏️ Tạo bài mới</a>
+  </aside>
+
+  <main class="admin-content">
+    <div class="top-bar">
+      <h2>Quản lý Tags</h2>
+    </div>
+
+    <div id="alert" style="display:none"></div>
+
+    <div class="admin-form" style="margin-bottom:24px">
+      <h2 style="font-size:1rem;margin-bottom:16px">Thêm tag mới</h2>
+      <form id="tag-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Tên *</label>
+            <input type="text" id="tag-name" placeholder="Trí tuệ nhân tạo" required />
+          </div>
+          <div class="form-group">
+            <label>Slug *</label>
+            <input type="text" id="tag-slug" placeholder="tri-tue-nhan-tao" required />
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Thêm</button>
+      </form>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Tên</th>
+            <th>Slug</th>
+            <th>Hành động</th>
+          </tr>
+        </thead>
+        <tbody id="tag-list">
+          <tr><td colspan="4" class="loading">Đang tải...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<script src="../js/api.js"></script>
+<script>
+  requireAuth();
+
+  document.getElementById('logout-btn').addEventListener('click', (e) => {
+    e.preventDefault();
+    localStorage.removeItem('token');
+    window.location.href = '../login.html';
+  });
+
+  document.getElementById('tag-name').addEventListener('input', function () {
+    document.getElementById('tag-slug').value = this.value
+      .toLowerCase()
+      .normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .replace(/đ/g, 'd')
+      .replace(/[^a-z0-9\s-]/g, '')
+      .trim().replace(/\s+/g, '-');
+  });
+
+  const alertEl = document.getElementById('alert');
+
+  function showAlert(type, msg) {
+    alertEl.className = 'alert alert-' + type;
+    alertEl.textContent = msg;
+    alertEl.style.display = 'block';
+  }
+
+  async function loadTags() {
+    const tbody = document.getElementById('tag-list');
+    try {
+      const tags = await adminGetTags();
+      if (tags.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="empty">Chưa có tag nào.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = tags.map(t => `
+        <tr>
+          <td>${t.id}</td>
+          <td><strong>${t.name}</strong></td>
+          <td>${t.slug}</td>
+          <td>
+            <button class="btn btn-danger btn-sm" onclick="deleteTag(${t.id}, '${t.name}')">Xoá</button>
+          </td>
+        </tr>
+      `).join('');
+    } catch (e) {
+      showAlert('error', 'Lỗi tải danh sách');
+    }
+  }
+
+  document.getElementById('tag-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    try {
+      await adminCreateTag({
+        name: document.getElementById('tag-name').value.trim(),
+        slug: document.getElementById('tag-slug').value.trim()
+      });
+      document.getElementById('tag-form').reset();
+      showAlert('success', 'Đã thêm tag!');
+      loadTags();
+    } catch (err) {
+      showAlert('error', err.message);
+    }
+  });
+
+  async function deleteTag(id, name) {
+    if (!confirm(`Xoá tag "${name}"?`)) return;
+    try {
+      await adminDeleteTag(id);
+      loadTags();
+    } catch (e) {
+      showAlert('error', 'Xoá thất bại: ' + e.message);
+    }
+  }
+
+  loadTags();
+</script>
+
+</body>
+</html>

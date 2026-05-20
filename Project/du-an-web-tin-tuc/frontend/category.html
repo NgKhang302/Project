@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chuyên mục – SongNhip24</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="index.html">SongNhip24</a>
+  <div class="nav-links">
+    <a href="index.html">← Trang chủ</a>
+  </div>
+</nav>
+
+<div class="container">
+  <h1 class="page-title" id="cat-title">Đang tải...</h1>
+  <div id="article-grid" class="article-grid">
+    <p class="loading">Đang tải...</p>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+  const slug = new URLSearchParams(location.search).get('slug');
+
+  async function load() {
+    const grid = document.getElementById('article-grid');
+    if (!slug) {
+      grid.innerHTML = '<p class="empty">Không tìm thấy chuyên mục.</p>';
+      return;
+    }
+    try {
+      const articles = await getArticlesByCategory(slug);
+      if (articles.length === 0) {
+        document.getElementById('cat-title').textContent = 'Chuyên mục';
+        grid.innerHTML = '<p class="empty">Chưa có bài viết nào trong chuyên mục này.</p>';
+        return;
+      }
+      document.getElementById('cat-title').textContent = articles[0].categoryName;
+      document.title = articles[0].categoryName + ' – SongNhip24';
+      grid.innerHTML = articles.map(a => `
+        <div class="card" onclick="location.href='article.html?slug=${a.slug}'">
+          ${a.coverImageUrl
+            ? `<img src="${BASE}${a.coverImageUrl}" alt="${a.title}" />`
+            : `<div class="card-no-img">📰</div>`}
+          <div class="card-body">
+            <div class="card-category">${a.categoryName}</div>
+            <div class="card-title">${a.title}</div>
+            <div class="card-summary">${a.summary || ''}</div>
+            <div class="card-meta">${formatDate(a.publishedAt)} · ${a.createdBy} · 👁 ${a.viewCount}</div>
+          </div>
+        </div>
+      `).join('');
+    } catch (e) {
+      grid.innerHTML = '<p class="empty">Không thể tải bài viết.</p>';
+    }
+  }
+
+  load();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,34 @@
+# Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+*.jar
+
+# Java
+*.class
+
+# IntelliJ
+.idea/
+*.iml
+
+# VSCode
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Build
+build/
+
+# Env / secrets
+.env
+*.env
+
+# Misc
+lib/
+ôn tập/
+ôn tập */
