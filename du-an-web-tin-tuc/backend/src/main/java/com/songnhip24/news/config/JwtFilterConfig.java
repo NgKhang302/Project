@@ -9,14 +9,12 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class JwtFilterConfig {
 
-    @Bean  //Spring quản lý object này
+    @Bean
     public FilterRegistrationBean<JwtFilter> jwtFilter(JwtService jwtService) {
         FilterRegistrationBean<JwtFilter> reg = new FilterRegistrationBean<>();
         reg.setFilter(new JwtFilter(jwtService));
-        // Chỉ bảo vệ các route admin
-        reg.addUrlPatterns("/api/admin/*");
-        reg.setOrder(1);  // thứ tự ưu tiên
+        reg.addUrlPatterns("/api/admin/*", "/api/auth/check");
+        reg.setOrder(1);
         return reg;
     }
 }
-// cấu hình cho Jwt filter chạy route api admin

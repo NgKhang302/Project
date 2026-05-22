@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -17,8 +18,7 @@ public class JwtService {
     // token hết hạn sau 8 tiếng
     private final long validityMs = 8 * 60 * 60 * 1000L;
 
-    public JwtService() {
-        String secret = "songnhip24_news_secret_key_must_be_at_least_32_chars";
+    public JwtService(@Value("${jwt.secret}") String secret) {
         key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         //Tạo SecretKey từ mảng byte = thuật toán HMAC-SHA(Chuyển String thành mảng byte[])
     }

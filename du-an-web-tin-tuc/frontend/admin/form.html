@@ -91,13 +91,9 @@
 
 <script src="../js/api.js"></script>
 <script>
-  /* global requireAuth, BASE, adminUpload, adminGetCategories, adminGetTags, adminGetArticle, adminCreateArticle, adminUpdateArticle, adminPublish, adminUnpublish */
-  requireAuth();
-
   document.getElementById('logout-btn').addEventListener('click', (e) => {
     e.preventDefault();
-    localStorage.removeItem('token');
-    window.location.href = '../login.html';
+    logout();
   });
 
   const articleId = new URLSearchParams(location.search).get('id');
@@ -123,7 +119,7 @@
       const res = await adminUpload(file);
       document.getElementById('coverImageUrl').value = res.url;
       const preview = document.getElementById('upload-preview');
-      preview.src = `${BASE}${res.url}`;
+      preview.src = BASE + res.url;
       preview.style.display = 'block';
       document.getElementById('upload-label').style.display = 'none';
     } catch (e) {
@@ -182,7 +178,7 @@
 
     if (a.coverImageUrl) {
       const preview = document.getElementById('upload-preview');
-      preview.src = `${BASE}${a.coverImageUrl}`;
+      preview.src = BASE + a.coverImageUrl;
       preview.style.display = 'block';
       document.getElementById('upload-label').style.display = 'none';
     }
@@ -256,7 +252,7 @@
     window.scrollTo(0, 0);
   }
 
-  Promise.all([loadCategories(), loadTags()]).then(loadArticle);
+  requireAuth().then(() => Promise.all([loadCategories(), loadTags()]).then(loadArticle));
 </script>
 
 </body>
