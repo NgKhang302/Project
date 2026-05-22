@@ -44,7 +44,7 @@
       grid.innerHTML = articles.map(a => `
         <div class="card" onclick="location.href='article.html?slug=${a.slug}'">
           ${a.coverImageUrl
-            ? `<img src="http://localhost:8080${a.coverImageUrl}" alt="${a.title}" />`
+            ? `<img src="${BASE}${a.coverImageUrl}" alt="${a.title}" />`
             : `<div class="card-no-img">📰</div>`}
           <div class="card-body">
             <div class="card-category">${a.categoryName}</div>

@@ -122,7 +122,7 @@
       const res = await adminUpload(file);
       document.getElementById('coverImageUrl').value = res.url;
       const preview = document.getElementById('upload-preview');
-      preview.src = 'http://localhost:8080' + res.url;
+      preview.src = BASE + res.url;
       preview.style.display = 'block';
       document.getElementById('upload-label').style.display = 'none';
     } catch (e) {
@@ -181,7 +181,7 @@
 
     if (a.coverImageUrl) {
       const preview = document.getElementById('upload-preview');
-      preview.src = 'http://localhost:8080' + a.coverImageUrl;
+      preview.src = BASE + a.coverImageUrl;
       preview.style.display = 'block';
       document.getElementById('upload-label').style.display = 'none';
     }
