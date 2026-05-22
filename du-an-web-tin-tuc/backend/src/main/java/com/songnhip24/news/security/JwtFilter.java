@@ -1,6 +1,7 @@
 package com.songnhip24.news.security;
 
 import jakarta.servlet.*;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
@@ -8,8 +9,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-// Chặn mọi request vào /api/admin/**, kiểm tra Bearer token
-// Nếu hợp lệ → gắn username vào request để controller dùng
 public class JwtFilter implements Filter {
 
     private static final Logger log = LoggerFactory.getLogger(JwtFilter.class);
@@ -26,20 +25,17 @@ public class JwtFilter implements Filter {
         HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) res;
 
-        // OPTIONS là preflight request của browser — cho qua không cần token
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             chain.doFilter(req, res);
             return;
         }
 
-        String authHeader = request.getHeader("Authorization");
+        String token = extractTokenFromCookie(request);
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Missing or invalid Authorization header");
+        if (token == null) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Missing authentication cookie");
             return;
         }
-
-        String token = authHeader.substring(7).trim();
 
         if (!jwtService.validate(token)) {
             log.warn("JWT invalid for path {}", request.getRequestURI());
@@ -49,5 +45,16 @@ public class JwtFilter implements Filter {
 
         request.setAttribute("username", jwtService.getUsername(token));
         chain.doFilter(req, res);
+    }
+
+    private String extractTokenFromCookie(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) return null;
+        for (Cookie cookie : cookies) {
+            if ("jwt".equals(cookie.getName())) {
+                return cookie.getValue();
+            }
+        }
+        return null;
     }
 }

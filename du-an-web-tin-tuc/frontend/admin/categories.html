@@ -75,12 +75,9 @@
 
 <script src="../js/api.js"></script>
 <script>
-  requireAuth();
-
   document.getElementById('logout-btn').addEventListener('click', (e) => {
     e.preventDefault();
-    localStorage.removeItem('token');
-    window.location.href = '../login.html';
+    logout();
   });
 
   // Tự gen slug từ tên
@@ -151,7 +148,7 @@
     }
   }
 
-  loadCategories();
+  requireAuth().then(loadCategories);
 </script>
 
 </body>

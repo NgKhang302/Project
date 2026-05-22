@@ -1,7 +1,6 @@
 package com.songnhip24.news.service;
 
 import com.songnhip24.news.dto.LoginRequest;
-import com.songnhip24.news.dto.LoginResponse;
 import com.songnhip24.news.model.User;
 import com.songnhip24.news.repository.UserRepository;
 import com.songnhip24.news.security.JwtService;
@@ -20,7 +19,7 @@ public class AuthService {
         this.jwtService = jwtService;
     }
 
-    public LoginResponse login(LoginRequest request) {
+    public String loginAndGetToken(LoginRequest request) {
         if (request.getUsername() == null || request.getUsername().isBlank()) {
             throw new IllegalArgumentException("Username is required");
         }
@@ -35,7 +34,6 @@ public class AuthService {
             throw new IllegalArgumentException("Invalid username or password");
         }
 
-        String token = jwtService.generate(user.getUsername());
-        return new LoginResponse(token);
+        return jwtService.generate(user.getUsername());
     }
 }

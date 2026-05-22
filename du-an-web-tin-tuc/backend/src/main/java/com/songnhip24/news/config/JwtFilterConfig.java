@@ -13,8 +13,7 @@ public class JwtFilterConfig {
     public FilterRegistrationBean<JwtFilter> jwtFilter(JwtService jwtService) {
         FilterRegistrationBean<JwtFilter> reg = new FilterRegistrationBean<>();
         reg.setFilter(new JwtFilter(jwtService));
-        // Chỉ bảo vệ các route admin
-        reg.addUrlPatterns("/api/admin/*");
+        reg.addUrlPatterns("/api/admin/*", "/api/auth/check");
         reg.setOrder(1);
         return reg;
     }

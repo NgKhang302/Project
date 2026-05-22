@@ -30,23 +30,24 @@
 
 <script src="js/api.js"></script>
 <script>
-  // Nếu đã login rồi thì vào thẳng admin
-  if (getToken()) window.location.href = 'admin/index.html';
+  // Nếu đã có session hợp lệ thì vào thẳng admin
+  fetch(`${BASE}/api/auth/check`, { credentials: 'include' })
+    .then(res => { if (res.ok) window.location.href = 'admin/index.html'; })
+    .catch(() => {});
 
   document.getElementById('login-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const alert = document.getElementById('alert');
+    const alertEl = document.getElementById('alert');
     const username = document.getElementById('username').value.trim();
     const password = document.getElementById('password').value;
 
     try {
-      const res = await login(username, password);
-      localStorage.setItem('token', res.token);
+      await login(username, password);
       window.location.href = 'admin/index.html';
     } catch (err) {
-      alert.className = 'alert alert-error';
-      alert.textContent = err.message;
-      alert.style.display = 'block';
+      alertEl.className = 'alert alert-error';
+      alertEl.textContent = err.message;
+      alertEl.style.display = 'block';
     }
   });
 </script>

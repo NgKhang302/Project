@@ -68,12 +68,9 @@
 
 <script src="../js/api.js"></script>
 <script>
-  requireAuth();
-
   document.getElementById('logout-btn').addEventListener('click', (e) => {
     e.preventDefault();
-    localStorage.removeItem('token');
-    window.location.href = '../login.html';
+    logout();
   });
 
   document.getElementById('tag-name').addEventListener('input', function () {
@@ -141,7 +138,7 @@
     }
   }
 
-  loadTags();
+  requireAuth().then(loadTags);
 </script>
 
 </body>

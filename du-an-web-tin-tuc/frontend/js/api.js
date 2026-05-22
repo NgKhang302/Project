@@ -1,22 +1,12 @@
 const BASE = 'http://localhost:8080';
 
-// Lấy token đang lưu trong localStorage
-function getToken() {
-  return localStorage.getItem('token');
-}
-
-// Header có Bearer token
-function authHeaders() {
-  return {
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer ' + getToken()
-  };
-}
-
-// Nếu chưa login mà vào trang admin thì đẩy về login
-function requireAuth() {
-  if (!getToken()) {
+// Kiểm tra session còn hợp lệ không (cookie được gửi tự động)
+// Nếu không hợp lệ thì chuyển về trang login
+async function requireAuth() {
+  const res = await fetch(`${BASE}/api/auth/check`, { credentials: 'include' });
+  if (!res.ok) {
     window.location.href = '/login.html';
+    return Promise.reject('Not authenticated');
   }
 }
 
@@ -25,10 +15,19 @@ async function login(username, password) {
   const res = await fetch(`${BASE}/api/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify({ username, password })
   });
   if (!res.ok) throw new Error('Sai tài khoản hoặc mật khẩu');
-  return res.json(); // { token }
+  return res.json();
+}
+
+async function logout() {
+  await fetch(`${BASE}/api/auth/logout`, {
+    method: 'POST',
+    credentials: 'include'
+  });
+  window.location.href = '/login.html';
 }
 
 // ── PUBLIC ────────────────────────────────────────
@@ -71,23 +70,20 @@ async function subscribeNewsletter(email) {
 
 // ── ADMIN ARTICLES ────────────────────────────────
 async function adminGetArticles() {
-  const res = await fetch(`${BASE}/api/admin/articles`, {
-    headers: authHeaders()
-  });
+  const res = await fetch(`${BASE}/api/admin/articles`, { credentials: 'include' });
   return res.json();
 }
 
 async function adminGetArticle(id) {
-  const res = await fetch(`${BASE}/api/admin/articles/${id}`, {
-    headers: authHeaders()
-  });
+  const res = await fetch(`${BASE}/api/admin/articles/${id}`, { credentials: 'include' });
   return res.json();
 }
 
 async function adminCreateArticle(data) {
   const res = await fetch(`${BASE}/api/admin/articles`, {
     method: 'POST',
-    headers: authHeaders(),
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify(data)
   });
   if (!res.ok) {
@@ -100,7 +96,8 @@ async function adminCreateArticle(data) {
 async function adminUpdateArticle(id, data) {
   const res = await fetch(`${BASE}/api/admin/articles/${id}`, {
     method: 'PUT',
-    headers: authHeaders(),
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify(data)
   });
   if (!res.ok) {
@@ -113,7 +110,7 @@ async function adminUpdateArticle(id, data) {
 async function adminPublish(id) {
   const res = await fetch(`${BASE}/api/admin/articles/${id}/publish`, {
     method: 'PUT',
-    headers: authHeaders()
+    credentials: 'include'
   });
   if (!res.ok) throw new Error('Lỗi publish');
   return res.json();
@@ -122,7 +119,7 @@ async function adminPublish(id) {
 async function adminUnpublish(id) {
   const res = await fetch(`${BASE}/api/admin/articles/${id}/unpublish`, {
     method: 'PUT',
-    headers: authHeaders()
+    credentials: 'include'
   });
   if (!res.ok) throw new Error('Lỗi unpublish');
   return res.json();
@@ -131,7 +128,7 @@ async function adminUnpublish(id) {
 async function adminDeleteArticle(id) {
   const res = await fetch(`${BASE}/api/admin/articles/${id}`, {
     method: 'DELETE',
-    headers: authHeaders()
+    credentials: 'include'
   });
   if (!res.ok) throw new Error('Lỗi xoá bài');
 }
@@ -142,25 +139,24 @@ async function adminUpload(file) {
   form.append('file', file);
   const res = await fetch(`${BASE}/api/admin/upload`, {
     method: 'POST',
-    headers: { 'Authorization': 'Bearer ' + getToken() },
+    credentials: 'include',
     body: form
   });
   if (!res.ok) throw new Error('Upload thất bại');
-  return res.json(); // { url }
+  return res.json();
 }
 
 // ── ADMIN CATEGORIES ─────────────────────────────
 async function adminGetCategories() {
-  const res = await fetch(`${BASE}/api/admin/categories`, {
-    headers: authHeaders()
-  });
+  const res = await fetch(`${BASE}/api/admin/categories`, { credentials: 'include' });
   return res.json();
 }
 
 async function adminCreateCategory(data) {
   const res = await fetch(`${BASE}/api/admin/categories`, {
     method: 'POST',
-    headers: authHeaders(),
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify(data)
   });
   if (!res.ok) {
@@ -173,21 +169,22 @@ async function adminCreateCategory(data) {
 async function adminDeleteCategory(id) {
   const res = await fetch(`${BASE}/api/admin/categories/${id}`, {
     method: 'DELETE',
-    headers: authHeaders()
+    credentials: 'include'
   });
   if (!res.ok) throw new Error('Lỗi xoá category');
 }
 
 // ── ADMIN TAGS ────────────────────────────────────
 async function adminGetTags() {
-  const res = await fetch(`${BASE}/api/admin/tags`, { headers: authHeaders() });
+  const res = await fetch(`${BASE}/api/admin/tags`, { credentials: 'include' });
   return res.json();
 }
 
 async function adminCreateTag(data) {
   const res = await fetch(`${BASE}/api/admin/tags`, {
     method: 'POST',
-    headers: authHeaders(),
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify(data)
   });
   if (!res.ok) {
@@ -200,7 +197,7 @@ async function adminCreateTag(data) {
 async function adminDeleteTag(id) {
   const res = await fetch(`${BASE}/api/admin/tags/${id}`, {
     method: 'DELETE',
-    headers: authHeaders()
+    credentials: 'include'
   });
   if (!res.ok) throw new Error('Lỗi xoá tag');
 }
