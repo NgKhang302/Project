@@ -33,18 +33,24 @@ public class JwtFilter implements Filter {
         String token = extractTokenFromCookie(request);
 
         if (token == null) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Missing authentication cookie");
+            sendUnauthorized(response, "Missing authentication cookie");
             return;
         }
 
         if (!jwtService.validate(token)) {
             log.warn("JWT invalid for path {}", request.getRequestURI());
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired token");
+            sendUnauthorized(response, "Invalid or expired token");
             return;
         }
 
         request.setAttribute("username", jwtService.getUsername(token));
         chain.doFilter(req, res);
+    }
+
+    private void sendUnauthorized(HttpServletResponse response, String message) throws IOException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json");
+        response.getWriter().write("{\"error\":\"" + message + "\"}");
     }
 
     private String extractTokenFromCookie(HttpServletRequest request) {
