@@ -36,7 +36,7 @@ public class ArticleService {
     public List<ArticleResponse> getAll() {
         return articleRepository.findAll().stream()
                 .map(a -> ArticleResponse.from(a, articleViewRepository.countByArticleId(a.getId())))
-                .toList();
+                .toList();  //chuyển stream thành list tự động add data vào
     }
 // 1 bài cụ thể
     public ArticleResponse getById(Integer id) {

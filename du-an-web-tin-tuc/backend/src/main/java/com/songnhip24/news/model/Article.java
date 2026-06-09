@@ -34,13 +34,13 @@ public class Article {
     @Column(name = "meta_description", columnDefinition = "text")
     private String metaDescription;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY)  //lazy load khi cần  tránh query thừa
     @JoinTable(
             name = "article_tags",
             joinColumns = @JoinColumn(name = "article_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
-    private List<Tag> tags = new ArrayList<>();
+    private List<Tag> tags = new ArrayList<>();  //khởi tạo list rỗng tránh NullPointerException
 
     @ManyToOne(fetch = FetchType.LAZY) // Tải tag khi nào dùng mới tải
     @JoinColumn(name = "category_id", nullable = false)

@@ -14,9 +14,11 @@ public class ArticleResponse {
     private String status;
     private String coverImageUrl;
     private String metaDescription;
+
     private Integer categoryId;
     private String categoryName;
     private String categorySlug;
+
     private String createdBy;
     private List<String> tags;
     private long viewCount;
@@ -25,11 +27,13 @@ public class ArticleResponse {
     private LocalDateTime publishedAt;
 
     public static ArticleResponse from(Article a) {
-        return from(a, 0L);
-    } //- Danh sách bài viết (không cần đếm)- Công khai danh mục (không cần đếm)- Tìm kiếm (không cần đếm)
+        return from(a, 0L);  //lần 1 dùng get ở dứi cùng
+        // [POLYMORPHISM — Method Overloading] gọi method bên dưới với viewCount mặc định 0
+    }
 
-    public static ArticleResponse from(Article a, long viewCount) { //- Xem chi tiết bài viết (cần hiển thị lượt xem)- Trang bài viết (cần hiển thị lượt xem)
-        ArticleResponse r = new ArticleResponse();
+    public static ArticleResponse from(Article a, long viewCount) {
+        // [POLYMORPHISM — Overloading] cùng tên from(), khác tham số
+        ArticleResponse r = new ArticleResponse(); // get update vào cái lần 2
         r.id = a.getId();
         r.title = a.getTitle();
         r.slug = a.getSlug();
@@ -44,14 +48,14 @@ public class ArticleResponse {
         r.categorySlug = a.getCategory().getSlug();
 
         r.createdBy = a.getCreatedBy().getUsername();
+        // lấy username từ User object, không lộ passwordHash
+        r.tags = a.getTags().stream().map(t -> t.getName()).toList();
 
-        r.tags = a.getTags().stream().map(t -> t.getName()).toList(); //Danh sách [Tag, Tag, Tag] còn stream là Dòng Tag → Tag → Tag
-        r.viewCount = viewCount;
-
+        r.viewCount = viewCount; // = 0L từ lần 1
         r.createdAt = a.getCreatedAt();
         r.updatedAt = a.getUpdatedAt();
         r.publishedAt = a.getPublishedAt();
-        return r;
+        return r; // lần 2 xog r trả return from(a, 0L);
     }
 
     public Integer getId() { return id; }

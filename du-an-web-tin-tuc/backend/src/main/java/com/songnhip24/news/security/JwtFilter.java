@@ -9,24 +9,24 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-public class JwtFilter implements Filter {
+public class JwtFilter implements Filter { //Polymorphism có thể dùng ở các file khác
 
-    private static final Logger log = LoggerFactory.getLogger(JwtFilter.class);
+    private static final Logger log = LoggerFactory.getLogger(JwtFilter.class);  // tất cả instance dùng chung logger
     private final JwtService jwtService;
 
     public JwtFilter(JwtService jwtService) {
         this.jwtService = jwtService;
     }
 
-    @Override
-    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
-            throws IOException, ServletException {
-
+    @Override //gi đè method từ filter interface
+    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)   //chain.dofilter để cho req đi tiếp
+            throws IOException, ServletException {                        // req tt từ clinet(cookie,url,....)
+  //cast để dùng HTTP-specific methods vì servlet k có http-specific methods
         HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) res;
-
-        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
-            chain.doFilter(req, res);
+    //servlet nhận req gửi res
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {  // hỏi sever cho get k
+            chain.doFilter(req, res);  // skip JWT check
             return;
         }
 
@@ -38,13 +38,13 @@ public class JwtFilter implements Filter {
         }
 
         if (!jwtService.validate(token)) {
-            log.warn("JWT invalid for path {}", request.getRequestURI());
+            log.warn("JWT invalid for path {}", request.getRequestURI()); //đường dẫn req
             sendUnauthorized(response, "Invalid or expired token");
             return;
         }
 
         request.setAttribute("username", jwtService.getUsername(token));
-        chain.doFilter(req, res);
+        chain.doFilter(req, res);  // gửi tiếp tới controll
     }
 
     private void sendUnauthorized(HttpServletResponse response, String message) throws IOException {
@@ -56,7 +56,7 @@ public class JwtFilter implements Filter {
     private String extractTokenFromCookie(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         if (cookies == null) return null;
-        for (Cookie cookie : cookies) {
+        for (Cookie cookie : cookies) {  //Loop qua từng cookie
             if ("jwt".equals(cookie.getName())) {
                 return cookie.getValue();
             }

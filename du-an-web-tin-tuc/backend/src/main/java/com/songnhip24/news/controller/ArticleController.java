@@ -36,7 +36,7 @@ public class ArticleController {
 
     // POST /api/admin/articles — tạo bài mới (mặc định DRAFT)
     @PostMapping("/articles")
-    public ResponseEntity<ArticleResponse> create(HttpServletRequest req,
+    public ResponseEntity<ArticleResponse> create(HttpServletRequest req, //lấy username từ JwtFilter
                                                   @RequestBody ArticleRequest request) {
         String username = (String) req.getAttribute("username");
         return ResponseEntity.ok(service.create(request, username));
@@ -69,7 +69,6 @@ public class ArticleController {
     }
 
     private static final List<String> ALLOWED_IMAGE_TYPES = List.of("jpg", "jpeg", "png", "webp", "gif");
-
     // POST /api/admin/upload — upload ảnh bìa
     // Trả về đường dẫn để gán vào coverImageUrl khi tạo bài
     @PostMapping("/upload")
@@ -81,21 +80,21 @@ public class ArticleController {
         String original = file.getOriginalFilename();
         if (original == null || !original.contains(".")) {
             throw new IllegalArgumentException("Invalid file name");
-        }
+        }                                                 //cắt đui file ra +1 là bỏ dấu chấm lấy đui
         String ext = original.substring(original.lastIndexOf('.') + 1).toLowerCase();
         if (!ALLOWED_IMAGE_TYPES.contains(ext)) {
             throw new IllegalArgumentException("Only image files are allowed (jpg, jpeg, png, webp, gif)");
-        }
-        String filename = System.currentTimeMillis() + "." + ext;
-        File uploadDir = new File("uploads");
-        if (!uploadDir.exists() && !uploadDir.mkdirs()) {
+        }                                                    //đui file
+        String filename = System.currentTimeMillis() + "." + ext;  //lấy time làm thành tên file để tránh trùng
+        File uploadDir = new File("uploads");//tạo object cho biết đường dẫn
+        if (!uploadDir.exists() && !uploadDir.mkdirs()) {//uploadDir.mkdirs dùng đường dẫn đó để tạo thật 
             throw new IllegalStateException("Could not create uploads directory");
         }
-
-        file.transferTo(new File("uploads/" + filename));
+               // lưu vào đường dẫn
+        file.transferTo(new File(uploadDir.getAbsolutePath() + "/" + filename));
 
         // Trả về URL để frontend điền vào coverImageUrl
         String url = "/uploads/" + filename;
-        return ResponseEntity.ok(Map.of("url", url));
+        return ResponseEntity.ok(Map.of("url", url));  //URL để frontend truy cập file vừa upload
     }
 }

@@ -63,3 +63,6 @@ ALTER TABLE "article_tags" ADD FOREIGN KEY ("article_id") REFERENCES "articles" 
 ALTER TABLE "article_tags" ADD FOREIGN KEY ("tag_id") REFERENCES "tags" ("id") ON DELETE CASCADE DEFERRABLE INITIALLY IMMEDIATE;
 
 ALTER TABLE "article_views" ADD FOREIGN KEY ("article_id") REFERENCES "articles" ("id") ON DELETE CASCADE DEFERRABLE INITIALLY IMMEDIATE;
+
+INSERT INTO users (username, email, password_hash, role, created_at)
+VALUES ('admin', 'admin@admin.local', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi.', 'ADMIN', NOW());

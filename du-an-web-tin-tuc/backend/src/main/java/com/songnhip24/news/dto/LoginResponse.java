@@ -1,9 +1,8 @@
-package com.songnhip24.news.dto;
-
 public class LoginResponse {
-    private final String token;
+    private final String message;
 
-    public LoginResponse(String token) { this.token = token; }
+    public LoginResponse(String message) { this.message = message; }
+    // Constructor — gán message khi tạo object
 
-    public String getToken() { return token; }
+    public String getMessage() { return message; }
 }

@@ -30,10 +30,10 @@ public class AuthService {
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid username or password"));
 
-        if (!encoder.matches(request.getPassword(), user.getPasswordHash())) {
+        if (!encoder.matches(request.getPassword(), user.getPasswordHash())) { // so sánh pass encode.matches
             throw new IllegalArgumentException("Invalid username or password");
         }
 
-        return jwtService.generate(user.getUsername());
+        return jwtService.generate(user.getUsername()); //tạo token
     }
 }

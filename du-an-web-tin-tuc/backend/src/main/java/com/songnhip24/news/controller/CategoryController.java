@@ -17,15 +17,13 @@ public class CategoryController {
         this.service = service;
     }
 
-    // ── Public ──────────────────────────────────────────────
     // GET /api/public/categories
     @GetMapping("/api/public/categories")
     public List<Category> listPublic() {
         return service.getAll();
     }
 
-    // ── Admin (yêu cầu Bearer token) ────────────────────────
-    // GET /api/admin/categories
+    // GET /api/admin/categories jwtfilter
     @GetMapping("/api/admin/categories")
     public List<Category> listAdmin() {
         return service.getAll();
@@ -33,8 +31,8 @@ public class CategoryController {
 
     // POST /api/admin/categories
     @PostMapping("/api/admin/categories")
-    public ResponseEntity<Category> create(@RequestBody CategoryRequest request) {
-        return ResponseEntity.ok(service.create(request));
+    public ResponseEntity<Category> create(@RequestBody CategoryRequest request) {  //(nhân json map vào object   "name": "Python",
+        return ResponseEntity.ok(service.create(request)); //Service lưu vào Database → trả về object
     }
 
     // PUT /api/admin/categories/{id}

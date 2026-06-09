@@ -32,7 +32,7 @@ public class PublicController {
     @GetMapping("/articles/{slug}")
     public ArticleResponse detail(@PathVariable String slug) {
         return articleService.getBySlug(slug);
-    }
+    }  //getBySlug() tự động INSERT vào article_view
 
     // Bài viết theo chuyên mục
     @GetMapping("/categories/{slug}/articles")
@@ -41,9 +41,14 @@ public class PublicController {
     }
 
     // Đăng ký nhận bản tin
-    @PostMapping("/newsletter")
+    @PostMapping("/newsletter") // body dạng JSON đơn giản + control được status code
     public ResponseEntity<Map<String, String>> subscribe(@RequestBody NewsletterRequest request) {
         newsletterService.subscribe(request.getEmail());
         return ResponseEntity.ok(Map.of("message", "Đăng ký thành công!"));
     }
 }
+///Stream + Map = Transform từng article
+/// ├─ Lần 1: Article1 → ArticleResponse1 (+ viewCount)
+/// ├─ Lần 2: Article2 → ArticleResponse2 (+ viewCount)
+/// ├─ Lần 3: Article3 → ArticleResponse3 (+ viewCount)
+/// └─ Kết quả: List<ArticleResponse> (tất cả)///

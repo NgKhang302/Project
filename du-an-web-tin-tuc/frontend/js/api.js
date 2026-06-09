@@ -1,4 +1,4 @@
-const BASE = 'http://localhost:8080';
+const BASE = '';
 
 // Kiểm tra session còn hợp lệ không (cookie được gửi tự động)
 // Nếu không hợp lệ thì chuyển về trang login

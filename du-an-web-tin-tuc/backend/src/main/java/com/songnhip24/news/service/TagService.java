@@ -38,7 +38,7 @@ public class TagService {
         return repository.save(tag);
     }
 
-    @Transactional
+    @Transactional //thành công thì ok còn k thì hoàn tác lại
     public Tag update(Integer id, TagRequest request) {
         if (request.getName() == null || request.getName().isBlank()) {
             throw new IllegalArgumentException("Tag name is required");

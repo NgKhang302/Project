@@ -16,7 +16,7 @@ public class NewsletterService {
     }
 
     public void subscribe(String email) {
-        if (email == null || !email.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
+        if (email == null || !email.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {  //[^@//s] k cho @ và space k tab và xuốn dòng
             throw new IllegalArgumentException("Invalid email address");
         }
         if (repository.existsByEmail(email)) {
