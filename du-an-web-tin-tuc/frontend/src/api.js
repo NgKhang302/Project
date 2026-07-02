@@ -1,17 +1,12 @@
-const BASE = '';
-
-// Kiểm tra session còn hợp lệ không (cookie được gửi tự động)
-// Nếu không hợp lệ thì chuyển về trang login
-async function requireAuth() {
-  const res = await fetch(`${BASE}/api/auth/check`, { credentials: 'include' });
-  if (!res.ok) {
-    window.location.href = '/login.html';
-    return Promise.reject('Not authenticated');
-  }
-}
+export const BASE = '';
 
 // ── AUTH ──────────────────────────────────────────
-async function login(username, password) {
+export async function checkAuth() {
+  const res = await fetch(`${BASE}/api/auth/check`, { credentials: 'include' });
+  return res.ok;
+}
+
+export async function login(username, password) {
   const res = await fetch(`${BASE}/api/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -22,42 +17,41 @@ async function login(username, password) {
   return res.json();
 }
 
-async function logout() {
+export async function logout() {
   await fetch(`${BASE}/api/auth/logout`, {
     method: 'POST',
     credentials: 'include'
   });
-  window.location.href = '/login.html';
 }
 
 // ── PUBLIC ────────────────────────────────────────
-async function getPublishedArticles() {
+export async function getPublishedArticles() {
   const res = await fetch(`${BASE}/api/public/articles`);
   return res.json();
 }
 
-async function getArticleBySlug(slug) {
+export async function getArticleBySlug(slug) {
   const res = await fetch(`${BASE}/api/public/articles/${slug}`);
   if (!res.ok) throw new Error('Không tìm thấy bài viết');
   return res.json();
 }
 
-async function getPublicCategories() {
+export async function getPublicCategories() {
   const res = await fetch(`${BASE}/api/public/categories`);
   return res.json();
 }
 
-async function getPublicTags() {
+export async function getPublicTags() {
   const res = await fetch(`${BASE}/api/public/tags`);
   return res.json();
 }
 
-async function getArticlesByCategory(slug) {
+export async function getArticlesByCategory(slug) {
   const res = await fetch(`${BASE}/api/public/categories/${slug}/articles`);
   return res.json();
 }
 
-async function subscribeNewsletter(email) {
+export async function subscribeNewsletter(email) {
   const res = await fetch(`${BASE}/api/public/newsletter`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -69,17 +63,17 @@ async function subscribeNewsletter(email) {
 }
 
 // ── ADMIN ARTICLES ────────────────────────────────
-async function adminGetArticles() {
+export async function adminGetArticles() {
   const res = await fetch(`${BASE}/api/admin/articles`, { credentials: 'include' });
   return res.json();
 }
 
-async function adminGetArticle(id) {
+export async function adminGetArticle(id) {
   const res = await fetch(`${BASE}/api/admin/articles/${id}`, { credentials: 'include' });
   return res.json();
 }
 
-async function adminCreateArticle(data) {
+export async function adminCreateArticle(data) {
   const res = await fetch(`${BASE}/api/admin/articles`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -93,7 +87,7 @@ async function adminCreateArticle(data) {
   return res.json();
 }
 
-async function adminUpdateArticle(id, data) {
+export async function adminUpdateArticle(id, data) {
   const res = await fetch(`${BASE}/api/admin/articles/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
@@ -107,7 +101,7 @@ async function adminUpdateArticle(id, data) {
   return res.json();
 }
 
-async function adminPublish(id) {
+export async function adminPublish(id) {
   const res = await fetch(`${BASE}/api/admin/articles/${id}/publish`, {
     method: 'PUT',
     credentials: 'include'
@@ -116,7 +110,7 @@ async function adminPublish(id) {
   return res.json();
 }
 
-async function adminUnpublish(id) {
+export async function adminUnpublish(id) {
   const res = await fetch(`${BASE}/api/admin/articles/${id}/unpublish`, {
     method: 'PUT',
     credentials: 'include'
@@ -125,7 +119,7 @@ async function adminUnpublish(id) {
   return res.json();
 }
 
-async function adminDeleteArticle(id) {
+export async function adminDeleteArticle(id) {
   const res = await fetch(`${BASE}/api/admin/articles/${id}`, {
     method: 'DELETE',
     credentials: 'include'
@@ -134,7 +128,7 @@ async function adminDeleteArticle(id) {
 }
 
 // ── UPLOAD ────────────────────────────────────────
-async function adminUpload(file) {
+export async function adminUpload(file) {
   const form = new FormData();
   form.append('file', file);
   const res = await fetch(`${BASE}/api/admin/upload`, {
@@ -147,12 +141,12 @@ async function adminUpload(file) {
 }
 
 // ── ADMIN CATEGORIES ─────────────────────────────
-async function adminGetCategories() {
+export async function adminGetCategories() {
   const res = await fetch(`${BASE}/api/admin/categories`, { credentials: 'include' });
   return res.json();
 }
 
-async function adminCreateCategory(data) {
+export async function adminCreateCategory(data) {
   const res = await fetch(`${BASE}/api/admin/categories`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -166,7 +160,7 @@ async function adminCreateCategory(data) {
   return res.json();
 }
 
-async function adminDeleteCategory(id) {
+export async function adminDeleteCategory(id) {
   const res = await fetch(`${BASE}/api/admin/categories/${id}`, {
     method: 'DELETE',
     credentials: 'include'
@@ -175,12 +169,12 @@ async function adminDeleteCategory(id) {
 }
 
 // ── ADMIN TAGS ────────────────────────────────────
-async function adminGetTags() {
+export async function adminGetTags() {
   const res = await fetch(`${BASE}/api/admin/tags`, { credentials: 'include' });
   return res.json();
 }
 
-async function adminCreateTag(data) {
+export async function adminCreateTag(data) {
   const res = await fetch(`${BASE}/api/admin/tags`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -194,7 +188,7 @@ async function adminCreateTag(data) {
   return res.json();
 }
 
-async function adminDeleteTag(id) {
+export async function adminDeleteTag(id) {
   const res = await fetch(`${BASE}/api/admin/tags/${id}`, {
     method: 'DELETE',
     credentials: 'include'
@@ -203,9 +197,18 @@ async function adminDeleteTag(id) {
 }
 
 // ── HELPER ────────────────────────────────────────
-function formatDate(dateStr) {
+export function formatDate(dateStr) {
   if (!dateStr) return '';
   return new Date(dateStr).toLocaleDateString('vi-VN', {
     day: '2-digit', month: '2-digit', year: 'numeric'
   });
+}
+
+export function slugify(text) {
+  return text
+    .toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/đ/g, 'd').replace(/Đ/g, 'd')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim().replace(/\s+/g, '-');
 }

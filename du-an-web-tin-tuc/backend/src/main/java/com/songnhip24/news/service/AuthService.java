@@ -20,7 +20,7 @@ public class AuthService {
     }
 
     public String loginAndGetToken(LoginRequest request) {
-        if (request.getUsername() == null || request.getUsername().isBlank()) {
+        if (request.getUsername() == null || request.getUsername().isBlank()) { //isBlank "" "  "
             throw new IllegalArgumentException("Username is required");
         }
         if (request.getPassword() == null || request.getPassword().isBlank()) {

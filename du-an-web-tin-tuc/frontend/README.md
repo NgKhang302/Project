@@ -1,34 +1,70 @@
 # Frontend — SongNhip24
 
-Giao diện web tin tức SongNhip24 viết bằng HTML + CSS + Vanilla JS thuần.
+Giao diện web tin tức SongNhip24 viết bằng React (Vite) + React Router.
 
 ## Cấu trúc
 
 ```
 frontend/
-├── index.html          Trang chủ — tin mới nhất + newsletter
-├── category.html       Trang chuyên mục — lọc bài theo category
-├── article.html        Trang chi tiết bài viết
-├── login.html          Đăng nhập admin
-├── admin/
-│   ├── index.html      Danh sách bài viết (admin)
-│   ├── form.html       Tạo / chỉnh sửa bài viết
-│   ├── categories.html Quản lý chuyên mục
-│   └── tags.html       Quản lý tags
-├── css/
-│   └── style.css       Toàn bộ CSS
-└── js/
-    └── api.js          Tất cả hàm gọi API
+├── index.html              Entry HTML (Vite)
+├── vite.config.js          Cấu hình Vite, proxy /api và /uploads sang backend khi dev
+├── src/
+│   ├── main.jsx             Bootstrap React + Router
+│   ├── App.jsx               Khai báo route
+│   ├── api.js                 Tất cả hàm gọi API
+│   ├── style.css              Toàn bộ CSS
+│   ├── components/
+│   │   ├── Navbar.jsx         Nav trang công khai
+│   │   ├── AdminNav.jsx       Nav khu vực admin (có nút đăng xuất)
+│   │   ├── AdminSidebar.jsx   Sidebar admin
+│   │   ├── ArticleCard.jsx    Card bài viết dùng chung
+│   │   └── RequireAuth.jsx    Route guard kiểm tra session cookie
+│   └── pages/
+│       ├── Home.jsx           Trang chủ — tin mới nhất + newsletter
+│       ├── Category.jsx       Trang chuyên mục
+│       ├── Article.jsx        Chi tiết bài viết
+│       ├── Login.jsx          Đăng nhập admin
+│       └── admin/
+│           ├── AdminArticles.jsx    Danh sách bài viết
+│           ├── AdminForm.jsx        Tạo / chỉnh sửa bài viết
+│           ├── AdminCategories.jsx  Quản lý chuyên mục
+│           └── AdminTags.jsx        Quản lý tags
 ```
 
-## Cách dùng
+## Route
 
-Không cần build, mở thẳng file HTML trên trình duyệt.  
-Yêu cầu backend đang chạy tại `http://localhost:8080`.
+| Path | Trang |
+|---|---|
+| `/` | Trang chủ |
+| `/category/:slug` | Chuyên mục |
+| `/article/:slug` | Chi tiết bài viết |
+| `/login` | Đăng nhập admin |
+| `/admin` | Danh sách bài viết (cần đăng nhập) |
+| `/admin/articles/new` | Tạo bài mới (cần đăng nhập) |
+| `/admin/articles/:id/edit` | Sửa bài (cần đăng nhập) |
+| `/admin/categories` | Quản lý category (cần đăng nhập) |
+| `/admin/tags` | Quản lý tag (cần đăng nhập) |
+
+## Chạy dev
+
+```
+npm install
+npm run dev
+```
+
+Yêu cầu backend đang chạy tại `http://localhost:8080`; Vite dev server proxy sẵn `/api` và `/uploads` sang đó.
+
+## Build production
+
+```
+npm run build
+```
+
+Output ở `dist/`, được Dockerfile build và serve qua nginx (xem `Dockerfile`, `nginx.conf`).
 
 ## api.js
 
-Tất cả hàm gọi API được tập trung trong `js/api.js`:
+Tất cả hàm gọi API được tập trung trong `src/api.js`:
 
 | Hàm | Mô tả |
 |---|---|
@@ -38,7 +74,9 @@ Tất cả hàm gọi API được tập trung trong `js/api.js`:
 | `getArticlesByCategory(slug)` | Bài theo chuyên mục |
 | `getPublicTags()` | Danh sách tags |
 | `subscribeNewsletter(email)` | Đăng ký bản tin |
+| `checkAuth()` | Kiểm tra session hiện tại |
 | `login(username, password)` | Đăng nhập admin |
+| `logout()` | Đăng xuất |
 | `adminGetArticles()` | Lấy tất cả bài (admin) |
 | `adminCreateArticle(data)` | Tạo bài mới |
 | `adminUpdateArticle(id, data)` | Cập nhật bài |
