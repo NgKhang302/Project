@@ -21,13 +21,16 @@ public class AuthController {
     private final AuthService authService;
     private final String cookieName;
     private final long cookieMaxAgeSeconds;
+    private final boolean cookieSecure;
 
     public AuthController(AuthService authService,
                            @Value("${jwt.cookie-name}") String cookieName,
-                           @Value("${jwt.expiration-ms}") long expirationMs) {
+                           @Value("${jwt.expiration-ms}") long expirationMs,
+                           @Value("${app.cookie.secure:false}") boolean cookieSecure) {
         this.authService = authService;
         this.cookieName = cookieName;
         this.cookieMaxAgeSeconds = expirationMs / 1000;
+        this.cookieSecure = cookieSecure;
     }
 
     @PostMapping("/register")
@@ -41,7 +44,7 @@ public class AuthController {
 
         ResponseCookie cookie = ResponseCookie.from(cookieName, result.token())
                 .httpOnly(true)
-                .secure(true)
+                .secure(cookieSecure)
                 .sameSite("Lax")
                 .path("/")
                 .maxAge(cookieMaxAgeSeconds)
@@ -56,7 +59,7 @@ public class AuthController {
     public ResponseEntity<Void> logout() {
         ResponseCookie cookie = ResponseCookie.from(cookieName, "")
                 .httpOnly(true)
-                .secure(true)
+                .secure(cookieSecure)
                 .sameSite("Lax")
                 .path("/")
                 .maxAge(0)

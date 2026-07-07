@@ -39,6 +39,9 @@ public class Lesson {
     @Column(name = "content_type", nullable = false, length = 20)
     private ContentType contentType;
 
+    @Column(name = "audio_url", length = 500)
+    private String audioUrl;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

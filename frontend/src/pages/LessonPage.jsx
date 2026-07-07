@@ -3,6 +3,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../api/api";
 import { useAuth } from "../hooks/useAuth";
 import Alert from "../components/Alert";
+import ListenButton from "../components/ListenButton";
+import WritingPractice from "../components/WritingPractice";
 
 const TYPE_LABELS = {
     READING: "Reading",
@@ -58,20 +60,39 @@ export default function LessonPage() {
                         {TYPE_LABELS[lesson.contentType] || lesson.contentType}
                     </span>
                     <h1>{lesson.title}</h1>
+
+                    {lesson.contentType === "LISTENING" && (
+                        <div className="listening-tools">
+                            {lesson.audioUrl && (
+                                <audio controls className="lesson-audio" src={lesson.audioUrl}>
+                                    Your browser does not support the audio element.
+                                </audio>
+                            )}
+                            <ListenButton
+                                text={lesson.content}
+                                label={lesson.audioUrl ? "🔊 Nghe lại bằng giọng đọc máy" : "🔊 Nghe bằng giọng đọc máy"}
+                            />
+                        </div>
+                    )}
+
                     <div className="lesson-content" dangerouslySetInnerHTML={{ __html: lesson.content || "" }} />
 
-                    <div className="lesson-actions">
-                        {isAuthenticated && (
-                            <button onClick={handleComplete} disabled={completing || completed}>
-                                {completed ? "Completed ✓" : completing ? "Saving..." : "Mark as complete"}
-                            </button>
-                        )}
-                        {quizCount > 0 && (
-                            <button className="secondary" onClick={() => navigate(`/lessons/${id}/quiz`)}>
-                                Take quiz ({quizCount} questions)
-                            </button>
-                        )}
-                    </div>
+                    {isAuthenticated && lesson.contentType === "WRITING" ? (
+                        <WritingPractice lessonId={id} onSubmitted={() => setCompleted(true)} />
+                    ) : (
+                        <div className="lesson-actions">
+                            {isAuthenticated && (
+                                <button onClick={handleComplete} disabled={completing || completed}>
+                                    {completed ? "Completed ✓" : completing ? "Saving..." : "Mark as complete"}
+                                </button>
+                            )}
+                            {quizCount > 0 && (
+                                <button className="secondary" onClick={() => navigate(`/lessons/${id}/quiz`)}>
+                                    Take quiz ({quizCount} questions)
+                                </button>
+                            )}
+                        </div>
+                    )}
                 </>
             )}
         </div>

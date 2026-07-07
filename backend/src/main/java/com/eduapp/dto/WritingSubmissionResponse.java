@@ -1,6 +1,5 @@
 package com.eduapp.dto;
 
-import com.eduapp.model.ContentType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,14 +13,11 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class LessonResponse {
+public class WritingSubmissionResponse {
     private Long id;
-    private Long categoryId;
-    private String categoryName;
-    private String title;
-    private String slug;
+    private Long lessonId;
     private String content;
-    private ContentType contentType;
-    private String audioUrl;
-    private LocalDateTime createdAt;
+    private int wordCount;
+    private String feedback;
+    private LocalDateTime submittedAt;
 }

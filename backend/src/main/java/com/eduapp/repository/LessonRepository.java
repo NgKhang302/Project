@@ -18,4 +18,6 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
     Optional<Lesson> findBySlug(String slug);
 
     boolean existsBySlug(String slug);
+
+    List<Lesson> findByTitleContainingIgnoreCase(String title);
 }

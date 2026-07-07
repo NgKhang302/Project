@@ -22,4 +22,6 @@ public class LessonRequest {
 
     @NotNull(message = "Content type is required")
     private ContentType contentType;
+
+    private String audioUrl;
 }

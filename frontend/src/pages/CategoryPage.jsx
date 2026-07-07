@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { api } from "../api/api";
+import { useAuth } from "../hooks/useAuth";
 import LessonCard from "../components/LessonCard";
 import Alert from "../components/Alert";
 
@@ -13,18 +14,26 @@ const TYPES = [
 
 export default function CategoryPage() {
     const { id } = useParams();
+    const { isAuthenticated } = useAuth();
     const [lessons, setLessons] = useState([]);
+    const [completedIds, setCompletedIds] = useState(new Set());
     const [contentType, setContentType] = useState("");
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         setLoading(true);
-        api.getLessonsByCategory(id, contentType || undefined)
-            .then(setLessons)
+        Promise.all([
+            api.getLessonsByCategory(id, contentType || undefined),
+            isAuthenticated ? api.getUserProgress().catch(() => []) : Promise.resolve([]),
+        ])
+            .then(([lessonData, progress]) => {
+                setLessons(lessonData);
+                setCompletedIds(new Set(progress.filter((p) => p.status === "COMPLETED").map((p) => p.lessonId)));
+            })
             .catch((err) => setError(err.message))
             .finally(() => setLoading(false));
-    }, [id, contentType]);
+    }, [id, contentType, isAuthenticated]);
 
     return (
         <div className="page container">
@@ -48,7 +57,7 @@ export default function CategoryPage() {
             ) : (
                 <div className="lesson-grid">
                     {lessons.map((lesson) => (
-                        <LessonCard key={lesson.id} lesson={lesson} />
+                        <LessonCard key={lesson.id} lesson={lesson} completed={completedIds.has(lesson.id)} />
                     ))}
                     {lessons.length === 0 && <p>No lessons in this category yet.</p>}
                 </div>

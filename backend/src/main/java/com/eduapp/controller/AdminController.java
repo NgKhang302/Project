@@ -2,14 +2,17 @@ package com.eduapp.controller;
 
 import com.eduapp.dto.*;
 import com.eduapp.service.CategoryService;
+import com.eduapp.service.FileStorageService;
 import com.eduapp.service.LessonService;
 import com.eduapp.service.QuizService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -18,11 +21,14 @@ public class AdminController {
     private final CategoryService categoryService;
     private final LessonService lessonService;
     private final QuizService quizService;
+    private final FileStorageService fileStorageService;
 
-    public AdminController(CategoryService categoryService, LessonService lessonService, QuizService quizService) {
+    public AdminController(CategoryService categoryService, LessonService lessonService, QuizService quizService,
+                            FileStorageService fileStorageService) {
         this.categoryService = categoryService;
         this.lessonService = lessonService;
         this.quizService = quizService;
+        this.fileStorageService = fileStorageService;
     }
 
     // --- Categories ---
@@ -69,6 +75,11 @@ public class AdminController {
     public ResponseEntity<Void> deleteLesson(@PathVariable Long id) {
         lessonService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/upload/audio")
+    public Map<String, String> uploadAudio(@RequestParam("file") MultipartFile file) {
+        return Map.of("url", fileStorageService.storeAudio(file));
     }
 
     // --- Quizzes ---

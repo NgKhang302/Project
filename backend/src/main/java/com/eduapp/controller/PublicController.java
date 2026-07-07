@@ -38,4 +38,9 @@ public class PublicController {
     public LessonResponse getLesson(@PathVariable Long id) {
         return lessonService.getById(id);
     }
+
+    @GetMapping("/lessons/search")
+    public List<LessonResponse> searchLessons(@RequestParam String q) {
+        return lessonService.search(q);
+    }
 }

@@ -43,6 +43,7 @@ export const api = {
     getLessonsByCategory: (categoryId, contentType) =>
         request("/public/lessons", { params: { categoryId, contentType } }),
     getPublicLesson: (id) => request(`/public/lessons/${id}`),
+    searchLessons: (q) => request("/public/lessons/search", { params: { q } }),
 
     // Lessons (authenticated)
     getLesson: (id) => request(`/lessons/${id}`),
@@ -51,6 +52,10 @@ export const api = {
     // Quizzes
     getQuizzesByLesson: (lessonId) => request(`/quizzes/lesson/${lessonId}`),
     submitQuizAnswer: (quizId, answer) => request("/quizzes/submit", { method: "POST", body: { quizId, answer } }),
+
+    // Writing practice
+    submitWriting: (lessonId, content) => request("/writing/submit", { method: "POST", body: { lessonId, content } }),
+    getWritingHistory: (lessonId) => request(`/writing/lesson/${lessonId}`),
 
     // User
     getProfile: () => request("/user/profile"),
@@ -69,6 +74,20 @@ export const api = {
     adminCreateLesson: (payload) => request("/admin/lessons", { method: "POST", body: payload }),
     adminUpdateLesson: (id, payload) => request(`/admin/lessons/${id}`, { method: "PUT", body: payload }),
     adminDeleteLesson: (id) => request(`/admin/lessons/${id}`, { method: "DELETE" }),
+
+    // Admin - uploads
+    adminUploadAudio: async (file) => {
+        const formData = new FormData();
+        formData.append("file", file);
+        const response = await fetch(`${BASE_URL}/admin/upload/audio`, {
+            method: "POST",
+            credentials: "include",
+            body: formData,
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data?.message || "Upload failed");
+        return data;
+    },
 
     // Admin - quizzes
     adminGetQuizzes: (lessonId) => request("/admin/quizzes", { params: { lessonId } }),

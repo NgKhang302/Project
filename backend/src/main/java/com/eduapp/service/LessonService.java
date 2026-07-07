@@ -48,6 +48,10 @@ public class LessonService {
         return lessonRepository.findByCategoryIdAndContentType(categoryId, type).stream().map(this::toResponse).toList();
     }
 
+    public List<LessonResponse> search(String query) {
+        return lessonRepository.findByTitleContainingIgnoreCase(query).stream().map(this::toResponse).toList();
+    }
+
     public LessonResponse getById(Long id) {
         return toResponse(findById(id));
     }
@@ -73,6 +77,7 @@ public class LessonService {
                 .slug(slug)
                 .content(request.getContent())
                 .contentType(request.getContentType())
+                .audioUrl(request.getAudioUrl())
                 .build();
 
         return toResponse(lessonRepository.save(lesson));
@@ -93,6 +98,7 @@ public class LessonService {
         lesson.setSlug(slug);
         lesson.setContent(request.getContent());
         lesson.setContentType(request.getContentType());
+        lesson.setAudioUrl(request.getAudioUrl());
 
         return toResponse(lessonRepository.save(lesson));
     }
@@ -148,6 +154,7 @@ public class LessonService {
                 .slug(lesson.getSlug())
                 .content(lesson.getContent())
                 .contentType(lesson.getContentType())
+                .audioUrl(lesson.getAudioUrl())
                 .createdAt(lesson.getCreatedAt())
                 .build();
     }

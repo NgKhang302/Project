@@ -129,7 +129,8 @@ function LessonsTab({ onError, onSuccess }) {
     const [categories, setCategories] = useState([]);
     const [categoryId, setCategoryId] = useState("");
     const [lessons, setLessons] = useState([]);
-    const [form, setForm] = useState({ id: null, categoryId: "", title: "", slug: "", content: "", contentType: "READING" });
+    const [form, setForm] = useState({ id: null, categoryId: "", title: "", slug: "", content: "", contentType: "READING", audioUrl: "" });
+    const [uploading, setUploading] = useState(false);
 
     useEffect(() => {
         api.adminGetCategories().then((data) => {
@@ -147,7 +148,22 @@ function LessonsTab({ onError, onSuccess }) {
         load(categoryId);
     }, [categoryId]);
 
-    const resetForm = () => setForm({ id: null, categoryId, title: "", slug: "", content: "", contentType: "READING" });
+    const resetForm = () => setForm({ id: null, categoryId, title: "", slug: "", content: "", contentType: "READING", audioUrl: "" });
+
+    const handleAudioUpload = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        setUploading(true);
+        try {
+            const { url } = await api.adminUploadAudio(file);
+            setForm((prev) => ({ ...prev, audioUrl: url }));
+            onSuccess("Audio uploaded");
+        } catch (err) {
+            onError(err.message);
+        } finally {
+            setUploading(false);
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -158,6 +174,7 @@ function LessonsTab({ onError, onSuccess }) {
                 slug: form.slug,
                 content: form.content,
                 contentType: form.contentType,
+                audioUrl: form.audioUrl || null,
             };
             if (form.id) {
                 await api.adminUpdateLesson(form.id, payload);
@@ -209,6 +226,21 @@ function LessonsTab({ onError, onSuccess }) {
                     onChange={(e) => setForm({ ...form, content: e.target.value })}
                     rows={5}
                 />
+                {form.contentType === "LISTENING" && (
+                    <label>
+                        Audio file (mp3/wav/ogg, max 10MB)
+                        <input type="file" accept="audio/*" onChange={handleAudioUpload} disabled={uploading} />
+                        {uploading && <span>Uploading...</span>}
+                        {form.audioUrl && (
+                            <>
+                                <audio controls src={form.audioUrl} style={{ width: "100%", marginTop: "0.5rem" }} />
+                                <button type="button" className="secondary" onClick={() => setForm({ ...form, audioUrl: "" })}>
+                                    Remove audio
+                                </button>
+                            </>
+                        )}
+                    </label>
+                )}
                 <button type="submit">{form.id ? "Update" : "Create"}</button>
                 {form.id && (
                     <button type="button" className="secondary" onClick={resetForm}>
@@ -252,7 +284,7 @@ function QuizzesTab({ onError, onSuccess }) {
     const [lessons, setLessons] = useState([]);
     const [lessonId, setLessonId] = useState("");
     const [quizzes, setQuizzes] = useState([]);
-    const [form, setForm] = useState({ id: null, question: "", options: "", correctAnswer: "", explanation: "" });
+    const [form, setForm] = useState({ id: null, question: "", options: ["", "", "", ""], correctAnswer: "", explanation: "" });
 
     useEffect(() => {
         api.adminGetCategories().then((data) => {
@@ -278,15 +310,47 @@ function QuizzesTab({ onError, onSuccess }) {
         load(lessonId);
     }, [lessonId]);
 
-    const resetForm = () => setForm({ id: null, question: "", options: "", correctAnswer: "", explanation: "" });
+    const resetForm = () => setForm({ id: null, question: "", options: ["", "", "", ""], correctAnswer: "", explanation: "" });
+
+    const setOption = (index, value) => {
+        setForm((prev) => {
+            const options = [...prev.options];
+            options[index] = value;
+            return { ...prev, options };
+        });
+    };
+
+    const addOption = () => setForm((prev) => ({ ...prev, options: [...prev.options, ""] }));
+
+    const removeOption = (index) => {
+        setForm((prev) => {
+            const removed = prev.options[index];
+            const options = prev.options.filter((_, i) => i !== index);
+            return {
+                ...prev,
+                options,
+                correctAnswer: prev.correctAnswer === removed ? "" : prev.correctAnswer,
+            };
+        });
+    };
+
+    const cleanOptions = form.options.map((o) => o.trim()).filter(Boolean);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (cleanOptions.length < 2) {
+            onError("Add at least 2 answer options");
+            return;
+        }
+        if (!cleanOptions.includes(form.correctAnswer)) {
+            onError("Pick the correct answer from the options below");
+            return;
+        }
         try {
             const payload = {
                 lessonId: Number(lessonId),
                 question: form.question,
-                options: form.options.split("|").map((o) => o.trim()).filter(Boolean),
+                options: cleanOptions,
                 correctAnswer: form.correctAnswer,
                 explanation: form.explanation,
             };
@@ -340,18 +404,40 @@ function QuizzesTab({ onError, onSuccess }) {
                     onChange={(e) => setForm({ ...form, question: e.target.value })}
                     required
                 />
-                <input
-                    placeholder="Options separated by | (e.g. A. cat | B. dog | C. bird)"
-                    value={form.options}
-                    onChange={(e) => setForm({ ...form, options: e.target.value })}
-                    required
-                />
-                <input
-                    placeholder="Correct answer (must match one option exactly)"
-                    value={form.correctAnswer}
-                    onChange={(e) => setForm({ ...form, correctAnswer: e.target.value })}
-                    required
-                />
+                <label>Answer options</label>
+                {form.options.map((option, index) => (
+                    <div className="inline-form" key={index} style={{ marginBottom: 0 }}>
+                        <input
+                            placeholder={`Option ${index + 1}`}
+                            value={option}
+                            onChange={(e) => setOption(index, e.target.value)}
+                        />
+                        {form.options.length > 2 && (
+                            <button type="button" className="secondary" onClick={() => removeOption(index)}>
+                                Remove
+                            </button>
+                        )}
+                    </div>
+                ))}
+                <button type="button" className="secondary" onClick={addOption}>
+                    + Add option
+                </button>
+
+                <label>
+                    Correct answer
+                    <select
+                        value={form.correctAnswer}
+                        onChange={(e) => setForm({ ...form, correctAnswer: e.target.value })}
+                        required
+                    >
+                        <option value="">-- Select the correct option --</option>
+                        {cleanOptions.map((option) => (
+                            <option key={option} value={option}>
+                                {option}
+                            </option>
+                        ))}
+                    </select>
+                </label>
                 <input
                     placeholder="Explanation (optional)"
                     value={form.explanation}
@@ -387,7 +473,7 @@ function QuizzesTab({ onError, onSuccess }) {
                                         setForm({
                                             id: q.id,
                                             question: q.question,
-                                            options: q.options.join(" | "),
+                                            options: q.options,
                                             correctAnswer: q.correctAnswer,
                                             explanation: q.explanation || "",
                                         })

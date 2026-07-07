@@ -13,6 +13,8 @@ import QuizPage from "./pages/QuizPage";
 import QuizResult from "./pages/QuizResult";
 import ProfilePage from "./pages/ProfilePage";
 import AdminPage from "./pages/AdminPage";
+import SearchResults from "./pages/SearchResults";
+import NotFound from "./pages/NotFound";
 
 export default function App() {
     return (
@@ -26,6 +28,7 @@ export default function App() {
                         <Route path="/register" element={<Register />} />
                         <Route path="/categories/:id" element={<CategoryPage />} />
                         <Route path="/lessons/:id" element={<LessonPage />} />
+                        <Route path="/search" element={<SearchResults />} />
 
                         <Route element={<RequireAuth />}>
                             <Route path="/dashboard" element={<Dashboard />} />
@@ -37,6 +40,8 @@ export default function App() {
                         <Route element={<RequireAuth adminOnly />}>
                             <Route path="/admin" element={<AdminPage />} />
                         </Route>
+
+                        <Route path="*" element={<NotFound />} />
                     </Routes>
                 </main>
             </AuthProvider>

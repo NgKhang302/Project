@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS lessons (
     slug         VARCHAR(220) NOT NULL UNIQUE,
     content      TEXT,
     content_type VARCHAR(20)  NOT NULL,
+    audio_url    VARCHAR(500),
     created_at   TIMESTAMP    NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS idx_lessons_category_id ON lessons(category_id);
@@ -60,3 +61,13 @@ CREATE TABLE IF NOT EXISTS user_quiz_results (
     "timestamp"  TIMESTAMP NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS idx_user_quiz_results_user_id ON user_quiz_results(user_id);
+
+CREATE TABLE IF NOT EXISTS writing_submissions (
+    id            BIGSERIAL PRIMARY KEY,
+    user_id       BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    lesson_id     BIGINT NOT NULL REFERENCES lessons(id) ON DELETE CASCADE,
+    content       TEXT   NOT NULL,
+    word_count    INT    NOT NULL DEFAULT 0,
+    submitted_at  TIMESTAMP NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_writing_submissions_user_lesson ON writing_submissions(user_id, lesson_id);

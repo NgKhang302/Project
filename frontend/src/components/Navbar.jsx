@@ -1,13 +1,22 @@
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
 export default function Navbar() {
     const { user, isAuthenticated, isAdmin, logout } = useAuth();
     const navigate = useNavigate();
+    const [query, setQuery] = useState("");
 
     const handleLogout = async () => {
         await logout();
         navigate("/login");
+    };
+
+    const handleSearch = (e) => {
+        e.preventDefault();
+        if (query.trim()) {
+            navigate(`/search?q=${encodeURIComponent(query.trim())}`);
+        }
     };
 
     return (
@@ -15,6 +24,14 @@ export default function Navbar() {
             <Link to="/" className="navbar-brand">
                 EduApp
             </Link>
+            <form className="navbar-search" onSubmit={handleSearch}>
+                <input
+                    type="search"
+                    placeholder="Tìm bài học..."
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                />
+            </form>
             <div className="navbar-links">
                 <Link to="/">Home</Link>
                 {isAuthenticated && <Link to="/dashboard">Dashboard</Link>}
