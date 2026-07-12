@@ -2,6 +2,7 @@ package com.eduapp.controller;
 
 import com.eduapp.dto.*;
 import com.eduapp.service.CategoryService;
+import com.eduapp.service.DialogueLineService;
 import com.eduapp.service.FileStorageService;
 import com.eduapp.service.LessonService;
 import com.eduapp.service.QuizService;
@@ -22,13 +23,15 @@ public class AdminController {
     private final LessonService lessonService;
     private final QuizService quizService;
     private final FileStorageService fileStorageService;
+    private final DialogueLineService dialogueLineService;
 
     public AdminController(CategoryService categoryService, LessonService lessonService, QuizService quizService,
-                            FileStorageService fileStorageService) {
+                            FileStorageService fileStorageService, DialogueLineService dialogueLineService) {
         this.categoryService = categoryService;
         this.lessonService = lessonService;
         this.quizService = quizService;
         this.fileStorageService = fileStorageService;
+        this.dialogueLineService = dialogueLineService;
     }
 
     // --- Categories ---
@@ -80,6 +83,17 @@ public class AdminController {
     @PostMapping("/upload/audio")
     public Map<String, String> uploadAudio(@RequestParam("file") MultipartFile file) {
         return Map.of("url", fileStorageService.storeAudio(file));
+    }
+
+    @GetMapping("/lessons/{id}/dialogue-lines")
+    public List<DialogueLineResponse> getDialogueLines(@PathVariable Long id) {
+        return dialogueLineService.getByLesson(id);
+    }
+
+    @PutMapping("/lessons/{id}/dialogue-lines")
+    public List<DialogueLineResponse> saveDialogueLines(@PathVariable Long id,
+                                                          @RequestBody List<DialogueLineRequest> lines) {
+        return dialogueLineService.replaceAll(id, lines);
     }
 
     // --- Quizzes ---

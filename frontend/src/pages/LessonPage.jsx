@@ -3,8 +3,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../api/api";
 import { useAuth } from "../hooks/useAuth";
 import Alert from "../components/Alert";
-import ListenButton from "../components/ListenButton";
 import WritingPractice from "../components/WritingPractice";
+import ReadingContent from "../components/ReadingContent";
+import ListeningContent from "../components/ListeningContent";
 
 const TYPE_LABELS = {
     READING: "Reading",
@@ -59,23 +60,16 @@ export default function LessonPage() {
                     <span className={`lesson-card-badge badge-${lesson.contentType?.toLowerCase()}`}>
                         {TYPE_LABELS[lesson.contentType] || lesson.contentType}
                     </span>
+                    {lesson.cefrLevel && <span className="cefr-badge">{lesson.cefrLevel}</span>}
                     <h1>{lesson.title}</h1>
 
-                    {lesson.contentType === "LISTENING" && (
-                        <div className="listening-tools">
-                            {lesson.audioUrl && (
-                                <audio controls className="lesson-audio" src={lesson.audioUrl}>
-                                    Your browser does not support the audio element.
-                                </audio>
-                            )}
-                            <ListenButton
-                                text={lesson.content}
-                                label={lesson.audioUrl ? "🔊 Nghe lại bằng giọng đọc máy" : "🔊 Nghe bằng giọng đọc máy"}
-                            />
-                        </div>
-                    )}
+                    {lesson.contentType === "LISTENING" && <ListeningContent lesson={lesson} />}
 
-                    <div className="lesson-content" dangerouslySetInnerHTML={{ __html: lesson.content || "" }} />
+                    {lesson.contentType === "READING" ? (
+                        <ReadingContent html={lesson.content} />
+                    ) : (
+                        <div className="lesson-content" dangerouslySetInnerHTML={{ __html: lesson.content || "" }} />
+                    )}
 
                     {isAuthenticated && lesson.contentType === "WRITING" ? (
                         <WritingPractice lessonId={id} onSubmitted={() => setCompleted(true)} />

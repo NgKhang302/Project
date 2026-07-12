@@ -4,6 +4,7 @@ import Alert from "../components/Alert";
 
 const TABS = ["Categories", "Lessons", "Quizzes"];
 const CONTENT_TYPES = ["READING", "WRITING", "LISTENING"];
+const CEFR_LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"];
 
 export default function AdminPage() {
     const [tab, setTab] = useState("Categories");
@@ -129,7 +130,17 @@ function LessonsTab({ onError, onSuccess }) {
     const [categories, setCategories] = useState([]);
     const [categoryId, setCategoryId] = useState("");
     const [lessons, setLessons] = useState([]);
-    const [form, setForm] = useState({ id: null, categoryId: "", title: "", slug: "", content: "", contentType: "READING", audioUrl: "" });
+    const [form, setForm] = useState({
+        id: null,
+        categoryId: "",
+        title: "",
+        slug: "",
+        content: "",
+        contentType: "READING",
+        audioUrl: "",
+        cefrLevel: "",
+        dialogueLines: [],
+    });
     const [uploading, setUploading] = useState(false);
 
     useEffect(() => {
@@ -148,7 +159,54 @@ function LessonsTab({ onError, onSuccess }) {
         load(categoryId);
     }, [categoryId]);
 
-    const resetForm = () => setForm({ id: null, categoryId, title: "", slug: "", content: "", contentType: "READING", audioUrl: "" });
+    const resetForm = () =>
+        setForm({
+            id: null,
+            categoryId,
+            title: "",
+            slug: "",
+            content: "",
+            contentType: "READING",
+            audioUrl: "",
+            cefrLevel: "",
+            dialogueLines: [],
+        });
+
+    const setDialogueLine = (index, field, value) => {
+        setForm((prev) => {
+            const dialogueLines = [...prev.dialogueLines];
+            dialogueLines[index] = { ...dialogueLines[index], [field]: value };
+            return { ...prev, dialogueLines };
+        });
+    };
+
+    const addDialogueLine = () =>
+        setForm((prev) => ({ ...prev, dialogueLines: [...prev.dialogueLines, { speaker: "", text: "" }] }));
+
+    const removeDialogueLine = (index) =>
+        setForm((prev) => ({ ...prev, dialogueLines: prev.dialogueLines.filter((_, i) => i !== index) }));
+
+    const moveDialogueLine = (index, direction) => {
+        setForm((prev) => {
+            const dialogueLines = [...prev.dialogueLines];
+            const target = index + direction;
+            if (target < 0 || target >= dialogueLines.length) return prev;
+            [dialogueLines[index], dialogueLines[target]] = [dialogueLines[target], dialogueLines[index]];
+            return { ...prev, dialogueLines };
+        });
+    };
+
+    const startEdit = async (lesson) => {
+        setForm({ ...lesson, categoryId: String(lesson.categoryId), cefrLevel: lesson.cefrLevel || "", dialogueLines: [] });
+        if (lesson.contentType === "LISTENING") {
+            try {
+                const lines = await api.adminGetDialogueLines(lesson.id);
+                setForm((prev) => ({ ...prev, dialogueLines: lines.map((l) => ({ speaker: l.speaker, text: l.text })) }));
+            } catch (err) {
+                onError(err.message);
+            }
+        }
+    };
 
     const handleAudioUpload = async (e) => {
         const file = e.target.files?.[0];
@@ -175,14 +233,25 @@ function LessonsTab({ onError, onSuccess }) {
                 content: form.content,
                 contentType: form.contentType,
                 audioUrl: form.audioUrl || null,
+                cefrLevel: form.cefrLevel || null,
             };
+            let lessonId = form.id;
             if (form.id) {
                 await api.adminUpdateLesson(form.id, payload);
                 onSuccess("Lesson updated");
             } else {
-                await api.adminCreateLesson(payload);
+                const created = await api.adminCreateLesson(payload);
+                lessonId = created.id;
                 onSuccess("Lesson created");
             }
+
+            if (form.contentType === "LISTENING") {
+                const cleanLines = form.dialogueLines
+                    .map((l) => ({ speaker: l.speaker.trim(), text: l.text.trim() }))
+                    .filter((l) => l.speaker && l.text);
+                await api.adminSaveDialogueLines(lessonId, cleanLines);
+            }
+
             resetForm();
             load(categoryId);
         } catch (err) {
@@ -220,6 +289,14 @@ function LessonsTab({ onError, onSuccess }) {
                         </option>
                     ))}
                 </select>
+                <select value={form.cefrLevel} onChange={(e) => setForm({ ...form, cefrLevel: e.target.value })}>
+                    <option value="">No CEFR level</option>
+                    {CEFR_LEVELS.map((lvl) => (
+                        <option key={lvl} value={lvl}>
+                            {lvl}
+                        </option>
+                    ))}
+                </select>
                 <textarea
                     placeholder="Content (HTML supported)"
                     value={form.content}
@@ -240,6 +317,43 @@ function LessonsTab({ onError, onSuccess }) {
                             </>
                         )}
                     </label>
+                )}
+                {form.contentType === "LISTENING" && (
+                    <div className="dialogue-editor">
+                        <label>Dialogue lines (optional — powers the synced subtitle transcript)</label>
+                        {form.dialogueLines.map((line, index) => (
+                            <div className="inline-form" key={index} style={{ marginBottom: "0.4rem" }}>
+                                <input
+                                    placeholder="Speaker"
+                                    value={line.speaker}
+                                    onChange={(e) => setDialogueLine(index, "speaker", e.target.value)}
+                                    style={{ maxWidth: "140px" }}
+                                />
+                                <input
+                                    placeholder="Line text"
+                                    value={line.text}
+                                    onChange={(e) => setDialogueLine(index, "text", e.target.value)}
+                                />
+                                <button type="button" className="secondary" onClick={() => moveDialogueLine(index, -1)} disabled={index === 0}>
+                                    ↑
+                                </button>
+                                <button
+                                    type="button"
+                                    className="secondary"
+                                    onClick={() => moveDialogueLine(index, 1)}
+                                    disabled={index === form.dialogueLines.length - 1}
+                                >
+                                    ↓
+                                </button>
+                                <button type="button" className="secondary" onClick={() => removeDialogueLine(index)}>
+                                    Remove
+                                </button>
+                            </div>
+                        ))}
+                        <button type="button" className="secondary" onClick={addDialogueLine}>
+                            + Add line
+                        </button>
+                    </div>
                 )}
                 <button type="submit">{form.id ? "Update" : "Create"}</button>
                 {form.id && (
@@ -263,7 +377,7 @@ function LessonsTab({ onError, onSuccess }) {
                             <td>{l.title}</td>
                             <td>{l.contentType}</td>
                             <td>
-                                <button className="link-button" onClick={() => setForm({ ...l, categoryId: String(l.categoryId) })}>
+                                <button className="link-button" onClick={() => startEdit(l)}>
                                     Edit
                                 </button>
                                 <button className="link-button danger" onClick={() => handleDelete(l.id)}>

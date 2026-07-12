@@ -13,6 +13,7 @@ export default function LessonCard({ lesson, completed = false }) {
                 <span className={`lesson-card-badge badge-${lesson.contentType?.toLowerCase()}`}>
                     {TYPE_LABELS[lesson.contentType] || lesson.contentType}
                 </span>
+                {lesson.cefrLevel && <span className="cefr-badge">{lesson.cefrLevel}</span>}
                 {completed && <span className="lesson-card-check" title="Completed">✓</span>}
             </div>
             <h3 className="lesson-card-title">{lesson.title}</h3>

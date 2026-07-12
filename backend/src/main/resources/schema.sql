@@ -27,9 +27,21 @@ CREATE TABLE IF NOT EXISTS lessons (
     content      TEXT,
     content_type VARCHAR(20)  NOT NULL,
     audio_url    VARCHAR(500),
+    cefr_level   VARCHAR(5),
     created_at   TIMESTAMP    NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS idx_lessons_category_id ON lessons(category_id);
+ALTER TABLE lessons ADD COLUMN IF NOT EXISTS cefr_level VARCHAR(5);
+CREATE INDEX IF NOT EXISTS idx_lessons_cefr_level ON lessons(cefr_level);
+
+CREATE TABLE IF NOT EXISTS dialogue_lines (
+    id           BIGSERIAL PRIMARY KEY,
+    lesson_id    BIGINT NOT NULL REFERENCES lessons(id) ON DELETE CASCADE,
+    speaker      VARCHAR(100) NOT NULL,
+    text         TEXT NOT NULL,
+    order_index  INT NOT NULL DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS idx_dialogue_lines_lesson_id ON dialogue_lines(lesson_id);
 
 CREATE TABLE IF NOT EXISTS quizzes (
     id              BIGSERIAL PRIMARY KEY,
@@ -68,6 +80,10 @@ CREATE TABLE IF NOT EXISTS writing_submissions (
     lesson_id     BIGINT NOT NULL REFERENCES lessons(id) ON DELETE CASCADE,
     content       TEXT   NOT NULL,
     word_count    INT    NOT NULL DEFAULT 0,
+    errors_json   TEXT,
+    error_count   INT    NOT NULL DEFAULT 0,
     submitted_at  TIMESTAMP NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS idx_writing_submissions_user_lesson ON writing_submissions(user_id, lesson_id);
+ALTER TABLE writing_submissions ADD COLUMN IF NOT EXISTS errors_json TEXT;
+ALTER TABLE writing_submissions ADD COLUMN IF NOT EXISTS error_count INT NOT NULL DEFAULT 0;

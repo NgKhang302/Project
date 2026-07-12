@@ -321,6 +321,19 @@ button.secondary {
     color: var(--color-listening);
 }
 
+.cefr-badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    padding: 0.25rem 0.55rem;
+    border-radius: 999px;
+    margin-left: 0.4rem;
+    margin-bottom: 0.5rem;
+    background: var(--color-border);
+    color: var(--color-text-muted);
+}
+
 .lesson-card-category {
     color: var(--color-text-muted);
     font-size: 0.85rem;
@@ -545,6 +558,27 @@ button.secondary {
     margin-top: 1rem;
 }
 
+.dialogue-transcript {
+    max-height: 320px;
+    overflow-y: auto;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius, 10px);
+    padding: 0.75rem 1rem;
+}
+
+.dialogue-line {
+    padding: 0.35rem 0.5rem;
+    border-radius: 6px;
+    border-left: 3px solid transparent;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.dialogue-line.active {
+    background: var(--color-info-bg);
+    border-left-color: var(--color-primary);
+}
+
 /* Writing practice */
 .writing-practice {
     margin-top: 2rem;
@@ -580,6 +614,58 @@ button.secondary {
 .writing-entry-date {
     font-size: 0.78rem;
     color: var(--color-text-muted);
+}
+
+.grammar-feedback {
+    white-space: pre-wrap;
+    margin: 0 0 0.5rem;
+    line-height: 1.6;
+}
+
+.grammar-live-preview {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 0.75rem 1rem;
+    margin: 0.75rem 0;
+}
+
+.grammar-checking,
+.grammar-live-count {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    margin: 0.35rem 0 0;
+}
+
+.grammar-error {
+    background: var(--color-error-bg);
+    color: var(--color-error);
+    text-decoration: wavy underline;
+    text-decoration-color: var(--color-error);
+    cursor: pointer;
+    border-radius: 2px;
+    padding: 0 1px;
+}
+
+.grammar-popover p {
+    margin: 0 0 0.5rem;
+}
+
+.replacement-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+
+.replacement-chip {
+    cursor: pointer;
+    border: none;
+    padding: 0.15rem 0.65rem;
+    border-radius: 999px;
+    background: var(--color-success-bg);
+    color: var(--color-success);
+    font-size: 0.85rem;
+    font-weight: 600;
 }
 
 /* Quiz */
@@ -694,6 +780,78 @@ button.secondary {
 
 .link-button.danger {
     color: var(--color-error);
+}
+
+/* Shared floating popover base (dictionary lookup, grammar feedback) */
+.popover {
+    position: fixed;
+    max-width: 320px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius, 10px);
+    padding: 0.75rem 1rem;
+    box-shadow: 0 8px 24px rgba(37, 20, 60, 0.18);
+    z-index: 50;
+    font-size: 0.9rem;
+}
+
+.popover-close {
+    float: right;
+    background: none;
+    box-shadow: none;
+    color: var(--color-text-muted);
+    font-size: 1rem;
+    line-height: 1;
+    padding: 0 0.25rem;
+}
+
+.word {
+    cursor: pointer;
+    border-radius: 3px;
+}
+
+.word:hover {
+    background: var(--color-info-bg);
+}
+
+.dictionary-popup-word {
+    font-weight: 700;
+    text-transform: capitalize;
+    margin-bottom: 0.15rem;
+}
+
+.dictionary-popup-phonetic {
+    color: var(--color-text-muted);
+    margin-bottom: 0.4rem;
+}
+
+.dictionary-popup-translation {
+    font-weight: 600;
+    color: var(--color-primary);
+    background: var(--color-info-bg);
+    border-radius: 6px;
+    padding: 0.3rem 0.5rem;
+    margin-bottom: 0.5rem;
+    display: inline-block;
+}
+
+.dictionary-popup-error {
+    color: var(--color-error);
+}
+
+.dictionary-popup-meaning {
+    margin-top: 0.4rem;
+}
+
+.dictionary-popup-meaning ol {
+    margin: 0.2rem 0 0 1.1rem;
+    padding: 0;
+}
+
+.dictionary-popup-example {
+    color: var(--color-text-muted);
+    font-style: italic;
+    font-size: 0.85rem;
 }
 
 /* Responsive */

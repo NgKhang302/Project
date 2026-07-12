@@ -15,6 +15,13 @@ services:
       timeout: 5s
       retries: 10
 
+  languagetool:
+    image: erikvl87/languagetool:latest
+    restart: unless-stopped
+    environment:
+      Java_Xms: 256m
+      Java_Xmx: 512m
+
   backend:
     build: ./backend
     restart: unless-stopped
@@ -30,9 +37,12 @@ services:
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:5173}
       COOKIE_SECURE: ${COOKIE_SECURE:-false}
       UPLOAD_DIR: /app/uploads
+      LANGUAGETOOL_URL: ${LANGUAGETOOL_URL:-http://languagetool:8010/v2/check}
     depends_on:
       postgres:
         condition: service_healthy
+      languagetool:
+        condition: service_started
     ports:
       - "8080:8080"
     volumes:

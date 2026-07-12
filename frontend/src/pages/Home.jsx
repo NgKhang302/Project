@@ -14,7 +14,7 @@ const SKILLS = [
     },
     {
         icon: "✍️",
-        title: "VIẾT",
+        title: "WRITING",
         lines: [
             "Bài tập luyện viết đa dạng, phản hồi tự động tức thì và bắt lỗi sai.",
             "Cải thiện ngữ pháp và diễn đạt tự nhiên hơn.",
@@ -22,7 +22,7 @@ const SKILLS = [
     },
     {
         icon: "🎧",
-        title: "NGHE",
+        title: "LISTENING",
         lines: [
             "Nghe hội thoại và bài nói với nhiều cấp độ khác nhau.",
             "Luyện phát âm chuẩn với phụ đề hỗ trợ.",

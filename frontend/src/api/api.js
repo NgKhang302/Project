@@ -40,8 +40,8 @@ export const api = {
 
     // Public
     getCategories: () => request("/public/categories"),
-    getLessonsByCategory: (categoryId, contentType) =>
-        request("/public/lessons", { params: { categoryId, contentType } }),
+    getLessonsByCategory: (categoryId, contentType, level) =>
+        request("/public/lessons", { params: { categoryId, contentType, level } }),
     getPublicLesson: (id) => request(`/public/lessons/${id}`),
     searchLessons: (q) => request("/public/lessons/search", { params: { q } }),
 
@@ -56,6 +56,10 @@ export const api = {
     // Writing practice
     submitWriting: (lessonId, content) => request("/writing/submit", { method: "POST", body: { lessonId, content } }),
     getWritingHistory: (lessonId) => request(`/writing/lesson/${lessonId}`),
+    checkWriting: (lessonId, content) => request("/writing/check", { method: "POST", body: { lessonId, content } }),
+
+    // Dictionary lookup
+    lookupWord: (word) => request("/public/dictionary", { params: { word } }),
 
     // User
     getProfile: () => request("/user/profile"),
@@ -74,6 +78,9 @@ export const api = {
     adminCreateLesson: (payload) => request("/admin/lessons", { method: "POST", body: payload }),
     adminUpdateLesson: (id, payload) => request(`/admin/lessons/${id}`, { method: "PUT", body: payload }),
     adminDeleteLesson: (id) => request(`/admin/lessons/${id}`, { method: "DELETE" }),
+    adminGetDialogueLines: (lessonId) => request(`/admin/lessons/${lessonId}/dialogue-lines`),
+    adminSaveDialogueLines: (lessonId, lines) =>
+        request(`/admin/lessons/${lessonId}/dialogue-lines`, { method: "PUT", body: lines }),
 
     // Admin - uploads
     adminUploadAudio: async (file) => {

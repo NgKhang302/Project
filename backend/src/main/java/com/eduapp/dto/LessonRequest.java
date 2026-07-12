@@ -1,5 +1,6 @@
 package com.eduapp.dto;
 
+import com.eduapp.model.CefrLevel;
 import com.eduapp.model.ContentType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -24,4 +25,6 @@ public class LessonRequest {
     private ContentType contentType;
 
     private String audioUrl;
+
+    private CefrLevel cefrLevel;
 }

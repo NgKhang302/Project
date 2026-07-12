@@ -1,5 +1,6 @@
 package com.eduapp.controller;
 
+import com.eduapp.dto.GrammarCheckResponse;
 import com.eduapp.dto.WritingSubmissionRequest;
 import com.eduapp.dto.WritingSubmissionResponse;
 import com.eduapp.service.WritingService;
@@ -29,5 +30,10 @@ public class WritingController {
     public List<WritingSubmissionResponse> getHistory(@PathVariable Long lessonId, HttpServletRequest httpRequest) {
         Long userId = (Long) httpRequest.getAttribute("userId");
         return writingService.getHistory(userId, lessonId);
+    }
+
+    @PostMapping("/check")
+    public GrammarCheckResponse check(@Valid @RequestBody WritingSubmissionRequest request) {
+        return writingService.checkOnly(request.getContent());
     }
 }

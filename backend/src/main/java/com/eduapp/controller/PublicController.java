@@ -2,6 +2,7 @@ package com.eduapp.controller;
 
 import com.eduapp.dto.CategoryResponse;
 import com.eduapp.dto.LessonResponse;
+import com.eduapp.model.CefrLevel;
 import com.eduapp.model.ContentType;
 import com.eduapp.service.CategoryService;
 import com.eduapp.service.LessonService;
@@ -28,10 +29,9 @@ public class PublicController {
 
     @GetMapping("/lessons")
     public List<LessonResponse> getLessons(@RequestParam Long categoryId,
-                                            @RequestParam(required = false) ContentType contentType) {
-        return contentType == null
-                ? lessonService.getByCategory(categoryId)
-                : lessonService.getByCategoryAndType(categoryId, contentType);
+                                            @RequestParam(required = false) ContentType contentType,
+                                            @RequestParam(required = false) CefrLevel level) {
+        return lessonService.getByCategoryFiltered(categoryId, contentType, level);
     }
 
     @GetMapping("/lessons/{id}")

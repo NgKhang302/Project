@@ -42,6 +42,10 @@ public class Lesson {
     @Column(name = "audio_url", length = 500)
     private String audioUrl;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "cefr_level", length = 5)
+    private CefrLevel cefrLevel;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

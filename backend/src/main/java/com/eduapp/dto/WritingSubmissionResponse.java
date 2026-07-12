@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -19,5 +20,7 @@ public class WritingSubmissionResponse {
     private String content;
     private int wordCount;
     private String feedback;
+    private int errorCount;
+    private List<GrammarMatchDTO> errors;
     private LocalDateTime submittedAt;
 }

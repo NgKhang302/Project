@@ -12,19 +12,30 @@ const TYPES = [
     { value: "LISTENING", label: "Listening" },
 ];
 
+const LEVELS = [
+    { value: "", label: "All levels" },
+    { value: "A1", label: "A1" },
+    { value: "A2", label: "A2" },
+    { value: "B1", label: "B1" },
+    { value: "B2", label: "B2" },
+    { value: "C1", label: "C1" },
+    { value: "C2", label: "C2" },
+];
+
 export default function CategoryPage() {
     const { id } = useParams();
     const { isAuthenticated } = useAuth();
     const [lessons, setLessons] = useState([]);
     const [completedIds, setCompletedIds] = useState(new Set());
     const [contentType, setContentType] = useState("");
+    const [cefrLevel, setCefrLevel] = useState("");
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         setLoading(true);
         Promise.all([
-            api.getLessonsByCategory(id, contentType || undefined),
+            api.getLessonsByCategory(id, contentType || undefined, cefrLevel || undefined),
             isAuthenticated ? api.getUserProgress().catch(() => []) : Promise.resolve([]),
         ])
             .then(([lessonData, progress]) => {
@@ -33,7 +44,7 @@ export default function CategoryPage() {
             })
             .catch((err) => setError(err.message))
             .finally(() => setLoading(false));
-    }, [id, contentType, isAuthenticated]);
+    }, [id, contentType, cefrLevel, isAuthenticated]);
 
     return (
         <div className="page container">
@@ -46,6 +57,17 @@ export default function CategoryPage() {
                         onClick={() => setContentType(type.value)}
                     >
                         {type.label}
+                    </button>
+                ))}
+            </div>
+            <div className="filter-tabs">
+                {LEVELS.map((level) => (
+                    <button
+                        key={level.value}
+                        className={cefrLevel === level.value ? "filter-tab active" : "filter-tab"}
+                        onClick={() => setCefrLevel(level.value)}
+                    >
+                        {level.label}
                     </button>
                 ))}
             </div>

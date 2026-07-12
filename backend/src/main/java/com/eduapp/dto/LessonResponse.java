@@ -1,5 +1,6 @@
 package com.eduapp.dto;
 
+import com.eduapp.model.CefrLevel;
 import com.eduapp.model.ContentType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -23,5 +25,7 @@ public class LessonResponse {
     private String content;
     private ContentType contentType;
     private String audioUrl;
+    private CefrLevel cefrLevel;
     private LocalDateTime createdAt;
+    private List<DialogueLineResponse> dialogueLines;
 }

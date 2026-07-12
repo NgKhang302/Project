@@ -1,5 +1,6 @@
 package com.eduapp.repository;
 
+import com.eduapp.model.CefrLevel;
 import com.eduapp.model.ContentType;
 import com.eduapp.model.Lesson;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,6 +13,10 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
     List<Lesson> findByCategoryId(Long categoryId);
 
     List<Lesson> findByCategoryIdAndContentType(Long categoryId, ContentType contentType);
+
+    List<Lesson> findByCategoryIdAndCefrLevel(Long categoryId, CefrLevel cefrLevel);
+
+    List<Lesson> findByCategoryIdAndContentTypeAndCefrLevel(Long categoryId, ContentType contentType, CefrLevel cefrLevel);
 
     List<Lesson> findByContentType(ContentType contentType);
 

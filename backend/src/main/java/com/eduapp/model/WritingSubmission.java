@@ -36,6 +36,12 @@ public class WritingSubmission {
     @Column(name = "word_count", nullable = false)
     private int wordCount;
 
+    @Column(name = "errors_json", columnDefinition = "TEXT")
+    private String errorsJson;
+
+    @Column(name = "error_count", nullable = false, columnDefinition = "INT DEFAULT 0")
+    private int errorCount;
+
     @Column(name = "submitted_at", nullable = false)
     private LocalDateTime submittedAt;
 
