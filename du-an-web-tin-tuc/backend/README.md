@@ -48,13 +48,9 @@ Chạy `schema.sql` để tạo toàn bộ bảng:
 
 ## Cấu hình môi trường
 
-Tạo file `.env` theo `.env.example`:
-
-```bash
-DB_URL=jdbc:postgresql://localhost:5432/songnhip24_db
-DB_USERNAME=postgres
-DB_PASSWORD=mat_khau_cua_ban
-```
+Tạo file `.env` ở thư mục gốc project (`du-an-web-tin-tuc/.env`) theo mẫu `../.env.example`.
+File này dùng chung cho cả chạy Docker lẫn chạy local — xem comment trong đó để biết
+biến nào dùng cho trường hợp nào.
 
 ## Chạy
 
