@@ -4,6 +4,7 @@ import com.songnhip24.news.dto.ArticleRequest;
 import com.songnhip24.news.dto.ArticleResponse;
 import com.songnhip24.news.service.ArticleService;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,6 +18,9 @@ import java.util.Map;
 public class ArticleController {
 
     private final ArticleService service;
+
+    @Value("${upload.dir}")
+    private String uploadDirProperty;
 
     public ArticleController(ArticleService service) {
         this.service = service;
@@ -86,7 +90,7 @@ public class ArticleController {
             throw new IllegalArgumentException("Only image files are allowed (jpg, jpeg, png, webp, gif)");
         }                                                    //đui file
         String filename = System.currentTimeMillis() + "." + ext;  //lấy time làm thành tên file để tránh trùng
-        File uploadDir = new File("uploads");//tạo object cho biết đường dẫn
+        File uploadDir = new File(uploadDirProperty);//tạo object cho biết đường dẫn
         if (!uploadDir.exists() && !uploadDir.mkdirs()) {//uploadDir.mkdirs dùng đường dẫn đó để tạo thật 
             throw new IllegalStateException("Could not create uploads directory");
         }

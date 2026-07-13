@@ -1,0 +1,7 @@
+target/
+uploads/
+.env
+.env.example
+.git
+.gitignore
+*.md
