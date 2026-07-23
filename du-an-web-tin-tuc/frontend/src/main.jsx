@@ -5,7 +5,7 @@ import App from './App.jsx'; // component chính
 import './style.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(  //vẽ app
-  <React.StrictMode> //tìm lõi
+  <React.StrictMode>
     <BrowserRouter>
       <App />
     </BrowserRouter>
